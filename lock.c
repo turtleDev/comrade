@@ -17,8 +17,8 @@
 
 // I'm assuming that tmpdir will generally be /tmp or /var/tmp
 // so I'm only going to allocate 512 bytes for lockfile buffer.
-static const int LOCKFILE_PATH_LIMIT = 512;
-static char linux_lockfile[512] = {'\0'};
+#define LOCKFILE_PATH_LIMIT 512
+static char linux_lockfile[LOCKFILE_PATH_LIMIT] = {'\0'};
 static FILE *lf = NULL;
 
 int _lock_acquire_linux(char *program_name) {
