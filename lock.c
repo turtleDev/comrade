@@ -15,11 +15,8 @@
 
 // --- Linux Specific Locking ---
 
-// I'm assuming that tmpdir will generally be /tmp or /var/tmp
-// so I'm only going to allocate 512 bytes for lockfile buffer.
-#define LOCKFILE_PATH_LIMIT 512
-static char linux_lockfile[LOCKFILE_PATH_LIMIT] = {'\0'};
 static FILE *lf = NULL;
+static char *linux_lockfile = NULL;
 
 int _lock_acquire_linux(char *program_name) {
 
@@ -39,12 +36,19 @@ int _lock_acquire_linux(char *program_name) {
         tmp_dir[strlen(tmp_dir) -1] = '\0';
     }
     
-    int count = snprintf(linux_lockfile, LOCKFILE_PATH_LIMIT,"%s/%s-%s.lock",
-                         tmp_dir, program_name, user);
+    int count = strlen(tmp_dir) + 
+                strlen(program_name) +
+                strlen(user) +
+                strlen(".lock") +
+                5; // Just as a precaution;
 
-    check(count < LOCKFILE_PATH_LIMIT, "path too long!");
+    linux_lockfile = malloc(sizeof(char) * count);
+    check(linux_lockfile, "Out of memory");
 
-    
+    sprintf(linux_lockfile,"%s/%s-%s.lock",
+             tmp_dir, program_name, user);
+
+
     lf = fopen(linux_lockfile, "w");
 
     check(lf, "unable to open %s for acquiring lock", linux_lockfile);
@@ -58,6 +62,7 @@ int _lock_acquire_linux(char *program_name) {
 // check() causes control to jump here, if the condition is false
 error:
     if (tmp_dir) free(tmp_dir);
+    if (linux_lockfile) free(linux_lockfile);
     return -1;
 }
 
@@ -67,5 +72,7 @@ int _lock_release_linux(void) {
     if(linux_lockfile) {
         remove(linux_lockfile); 
     }
+    free(linux_lockfile);
+    linux_lockfile = NULL;
     return rc;
 }
