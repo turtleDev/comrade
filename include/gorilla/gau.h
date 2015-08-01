@@ -8,9 +8,9 @@
 #ifndef _GORILLA_GAU_H
 #define _GORILLA_GAU_H
 
-#include "gorilla/common/gc_common.h"
-#include "gorilla/ga.h"
-#include "gorilla/ga_internal.h"
+#include "common/gc_common.h"
+#include "ga.h"
+#include "ga_internal.h"
 
 #ifdef __cplusplus
 extern "C"

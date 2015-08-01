@@ -12,7 +12,7 @@
 #ifndef _GORILLA_GA_INTERNAL_H
 #define _GORILLA_GA_INTERNAL_H
 
-#include "gorilla/common/gc_common.h"
+#include "common/gc_common.h"
 
 #ifdef __cplusplus
 extern "C"
