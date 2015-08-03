@@ -21,7 +21,7 @@ enum _pflags{
 };
 
 
-static int _run_stat(char *fname, int flag) {
+static int _run_stat(const char *fname, int flag) {
     int rc = 0;
 
     // Just some shenanigans to ensure a more consistent call to stat.
@@ -52,23 +52,23 @@ static int _run_stat(char *fname, int flag) {
     }
 }
 
-int path_isfile(char *fname) {
+int path_isfile(const char *fname) {
     return _run_stat(fname, p_IR);
 }
 
-int path_isdir(char *fname) {
+int path_isdir(const char *fname) {
     return _run_stat(fname, p_ID);
 }
 
-int path_islink(char *fname) {
+int path_islink(const char *fname) {
     return _run_stat(fname, p_IL);
 }
 
-int path_isfifo(char *fname) {
+int path_isfifo(const char *fname) {
     return _run_stat(fname, p_IF);
 }
 
-int path_exists(char *fname) {
+int path_exists(const char *fname) {
     return _run_stat(fname, p_E);
 }
 

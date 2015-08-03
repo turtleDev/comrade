@@ -6,8 +6,8 @@
  */
 
 
-int path_isdir(char *fname);
-int path_isfile(char *fname);
-int path_isfifo(char *fname);
-int path_islink(char *fname);
-int path_exists(char *fname);
+int path_isdir(const char *fname);
+int path_isfile(const char *fname);
+int path_isfifo(const char *fname);
+int path_islink(const char *fname);
+int path_exists(const char *fname);
