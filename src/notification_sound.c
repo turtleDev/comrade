@@ -33,7 +33,9 @@ static int is_format_supported(const char *file, char *fmt) {
     // since l currently indexes to '.(extension)', we want to move it one
     // index forward so it indexes to (extension) instead
     ++l;
-    char *ext = strdup(file + l);
+
+    char ext[256];
+    strcpy(ext, file + l);
 
     int i;
     for(i = 0; i < f_count; ++i) {
@@ -53,7 +55,7 @@ int play_notification_sound(const char *file) {
     }
 
     // since filename size have a limit of 256 chars, I've made this buffer
-    // equal 256 chars, so I'm paranoid as F... yeah.
+    // equal 256 chars, because I'm paranoid as ... yeah.
     char fmt[256] = {"wav"};
 
     if(!is_format_supported(file, fmt)) {

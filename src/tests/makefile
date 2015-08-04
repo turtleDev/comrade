@@ -7,7 +7,7 @@ locktest: path.o lock.o
 
 # This only works on linux 64bit 
 ns_test: 
-	gcc ns_test.c ../notification_sound.c ../path.c ../lib/linux/x86_64/libgorilla.a -lm -lpthread ../lib/linux/x86_64/libopenal.so -o ns_test 
+	gcc ns_test.c ../notification_sound.c ../path.c ../../lib/linux/x86_64/libgorilla.a -lm -lpthread ../../lib/linux/x86_64/libopenal.so -o ns_test 
 
 clean:
 	rm -i -f *.o
