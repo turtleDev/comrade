@@ -9,8 +9,11 @@ locktest: path.o lock.o
 ns_test: 
 	gcc ns_test.c ../notification_sound.c ../path.c ../../lib/linux/x86_64/libgorilla.a -lm -lpthread ../../lib/linux/x86_64/libopenal.so -o ns_test 
 
+config_test:
+	gcc config_test.c ../config.c ../../lib/linux/x86_64/libjsmn.a -o config_test
+
 clean:
 	rm -i -f *.o
 	rm -i -f locktest
 	rm -i -f ns_test
-
+	rm -i -f config_test

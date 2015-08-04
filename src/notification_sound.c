@@ -8,10 +8,15 @@
 
 #include <string.h>
 
-#include "include/gorilla/ga.h"
-#include "include/gorilla/gau.h"
 #include "debug.h"
 #include "path.h"
+
+#ifdef __linux
+#include "include/gorilla/ga.h"
+#include "include/gorilla/gau.h"
+#endif
+
+/* TODO: include gorrila headers on win machines */
 
 static const char *formats[] = {"wav"};
 // you'll have to update this manually. No way around it for now, I'm afraid.
