@@ -6,6 +6,8 @@
  *
  */
 
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
 struct Config {
     char *message;
@@ -19,3 +21,4 @@ struct Config * config_load(const char *json);
 
 void config_cleanup(struct Config *cfg);
 
+#endif

@@ -5,8 +5,8 @@
  *  book "learn C the hard way".
  */
 
-#ifndef __dbg_h
-#define __dbg_h
+#ifndef __DBG_H
+#define __DBG_H
 
 #include <stdio.h>
 #include <errno.h>

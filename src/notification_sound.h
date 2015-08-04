@@ -6,4 +6,9 @@
  *
  */
 
+#ifndef __NOTIFICATION_SOUND_H
+#define __NOTIFICATION_SOUND_H
+
 int play_notification_sound(const char *file);
+
+#endif

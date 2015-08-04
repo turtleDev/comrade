@@ -4,8 +4,8 @@
  *      TODO: add copyright notice
  */
 
-#ifndef _lock_h
-#define _lock_h
+#ifndef __LOCK_H
+#define __LOCK_H
 
 //  --- Linux specific locks ---
 int _lock_acquire_linux(char *program_name);

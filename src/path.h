@@ -6,8 +6,13 @@
  */
 
 
+#ifndef __PATH_H
+#define __PATH_H
+
 int path_isdir(const char *fname);
 int path_isfile(const char *fname);
 int path_isfifo(const char *fname);
 int path_islink(const char *fname);
 int path_exists(const char *fname);
+
+#endif

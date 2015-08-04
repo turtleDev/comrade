@@ -11,7 +11,7 @@
 
 #include "debug.h"
 
-#ifdef __linux
+#ifdef __linux__
 #include "include/jsmn.h"
 #endif
 
