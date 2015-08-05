@@ -10,11 +10,56 @@
 #include <libnotify/notify.h>
 #include <glib.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "notification.h"
 #include "path.h"
 #include "notification_sound.h"
 #include "debug.h"
+
+static char * get_dir_name(char *path) {
+    int i = strlen(path);
+    for(;path[i] != '/'; --i) {
+        if( i == 0 ) {
+            return NULL;
+        }
+    }
+    ++i;
+    return path + i;
+}
+
+static char * get_abs_path(char *file) {
+    
+    char *abspath = malloc(sizeof(char) * PATH_MAX);
+    realpath(file, abspath);
+    
+    if(!abspath) {
+        log_err("out of memory");
+        return NULL;
+    }
+
+    return abspath;
+    /*
+    if( file[0] == '/') {
+        return strdup(file);
+    }
+    char *wd = getenv("PWD");
+    char *rc = get_dir_name(argv0);
+    char *base = rc ? "" : rc;
+    // if you're wondering what the +5 is, that's just for safety.
+    int count = strlen(wd) + strlen(file) + strlen(argv0) + 5;
+
+    char* abspath = malloc(sizeof(char) * count);
+    if(!abspath) {
+        log_err("out of memory");
+        return NULL;
+    }
+    sprintf(abspath, "%s/%s/%s", wd, base, file);
+
+    return abspath; 
+    */
+}
 
 int _display_notification_linux(struct Config *cfg) {
     int icon_exists = 1;
@@ -31,7 +76,10 @@ int _display_notification_linux(struct Config *cfg) {
 
     char *msg = cfg->message;
     char *title = cfg->title;
-    char *icon = icon_exists ? cfg->icon_file : NULL;
+    // libnotify's icon only shows up if you tell it the absolute path to
+    // to icon. It won't show other wise. It returns a freshly allocated
+    // string. remember to free it afterwards.
+    char *icon = icon_exists ? get_abs_path(cfg->icon_file) : NULL;
     char *snd = sound_exists ? cfg->sound_file : NULL;
 
     NotifyNotification *notification = NULL;
@@ -58,7 +106,8 @@ int _display_notification_linux(struct Config *cfg) {
   
     // free the notifiction object
     g_object_unref(G_OBJECT(notification));
-
+    
+    if(icon) free(icon);
     // everything went ok. Return success
     return 0;
 }

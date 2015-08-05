@@ -131,6 +131,7 @@ struct Config * config_load(const char *json) {
     free(tokens);
     return cfg;
 }
+
 void config_cleanup(struct Config *cfg) {
     if(cfg) {
         if(cfg->title) free(cfg->title);
