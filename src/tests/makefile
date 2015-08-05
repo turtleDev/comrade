@@ -1,10 +1,5 @@
-
-path.o: 
-	cc -c ../path.c -o ./path.o
-lock.o: 
-	cc -c ../lock.c -o ./lock.o
-
-locktest: path.o lock.o
+locktest: 
+	gcc locktest.c ../path.c ../lock.c -o locktest
 
 # This only works on linux 64bit 
 ns_test: 
