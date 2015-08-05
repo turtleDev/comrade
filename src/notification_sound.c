@@ -55,6 +55,8 @@ static int is_format_supported(const char *file, char *fmt) {
 
 int play_notification_sound(const char *file) {
 
+    if(!file) return -1;
+
     if( !path_isfile(file) ) {
         return -1;
     }

@@ -37,8 +37,6 @@ struct Config * config_load(const char *json) {
     int rc;
     jsmn_parser parser;
 
-    // we do not expect more that 10 tokens
-    // but only 4 are actually going to be used.
     jsmntok_t *tokens = NULL;
 
     jsmn_init(&parser);
@@ -88,7 +86,9 @@ struct Config * config_load(const char *json) {
     cfg->icon_file = NULL;
 
     int i;
+    // we're only going to parse the data inside the first object.
     int len = tokens[0].size * 2;
+    // I start the index from one, since the index 0 is the toplevel object
     for(i = 1; i < len; ++i) {
         if(isequal(json, tokens[i], "title")) {
             // copy the data.
