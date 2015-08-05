@@ -39,27 +39,48 @@ struct Config * config_load(const char *json) {
 
     // we do not expect more that 10 tokens
     // but only 4 are actually going to be used.
-    jsmntok_t tokens[10];
+    jsmntok_t *tokens = NULL;
 
     jsmn_init(&parser);
 
-    rc = jsmn_parse(&parser, json, strlen(json), tokens,
-                       sizeof(tokens)/sizeof(tokens[0]));
+    // parse the number of tokens.
+    rc = jsmn_parse(&parser, json, strlen(json), NULL, 0);
 
     if ( rc == JSMN_ERROR_INVAL || rc == JSMN_ERROR_PART ) {
         // json string does not have a complete object or
         // json string has invalid characters, then, return an error
+        log_err("configuration JSON string is invalid.");
+        return NULL;
+    }
+    
+    tokens = malloc(sizeof(jsmntok_t) * rc);
+
+    if(!tokens) {
+        log_err("out of memory");
         return NULL;
     }
 
+    // re-init parser, since we've already used it once to parse the number
+    // of tokens.
+    jsmn_init(&parser);
+
+    // parse tokens 
+    jsmn_parse(&parser, json, strlen(json), tokens, rc);
+
     // we only expect a single toplevel object. All other objects will be 
-    // ignored.
-    
+    // ignored. 
     if(tokens[0].type != JSMN_OBJECT ) {
-        log_err("Expected a JSON object");
+        log_err("expected a JSON object");
         return NULL;
     }
+ 
+
     struct Config *cfg = malloc(sizeof(struct Config));
+
+    if(!cfg) {
+        log_err("out of memory");
+        return NULL;
+    }
 
     cfg->title = NULL;
     cfg->message = NULL;
@@ -67,8 +88,8 @@ struct Config * config_load(const char *json) {
     cfg->icon_file = NULL;
 
     int i;
-    int len = tokens[0].size;
-    for(i = 0; i < len; ++i) {
+    int len = tokens[0].size * 2;
+    for(i = 1; i < len; ++i) {
         if(isequal(json, tokens[i], "title")) {
             // copy the data.
             cfg->title = getdata(json, tokens, i);
@@ -79,6 +100,7 @@ struct Config * config_load(const char *json) {
                 config_cleanup(cfg);
                 return NULL;
             }
+
         } else if(isequal(json, tokens[i], "message")) {
             cfg->message = getdata(json, tokens, i);
 
@@ -105,6 +127,8 @@ struct Config * config_load(const char *json) {
             }
         }
     }
+
+    free(tokens);
     return cfg;
 }
 void config_cleanup(struct Config *cfg) {
