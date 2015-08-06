@@ -14,6 +14,8 @@ struct Config {
     char *title;
     char *sound_file;
     char *icon_file;
+    char *address;
+    int ping_count;
 };
 
 

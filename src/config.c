@@ -31,7 +31,18 @@ char * getdata(const char *json, jsmntok_t t[], int i) {
     char *str = strndup(json + t[i+1].start,t[i+1].end - t[i+1].start);
     return str;
 }
-    
+   
+int is_a_number(char *str) {
+    int i;
+    int len = strlen(str);
+    for(i = 0; i < len; ++i) {
+        if(!isdigit(str[i])) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
 
 struct Config * config_load(const char *json) {
     int rc;
@@ -87,6 +98,9 @@ struct Config * config_load(const char *json) {
 
     int i;
     // we're only going to parse the data inside the first object.
+  
+    // tokens.size is the number of key:value pairs. to index over each token
+    // (each key and value) we'll need a limit of twice of size.
     int len = tokens[0].size * 2;
     // I start the index from one, since the index 0 is the toplevel object
     for(i = 1; i < len; ++i) {
@@ -125,6 +139,27 @@ struct Config * config_load(const char *json) {
                 config_cleanup(cfg);
                 return NULL;
             }
+        } else if(isequal(json, tokens[i], "address")) {
+            cfg->address = getdata(json, tokens, i);
+
+            ++i;
+            if(!cfg->address) {
+                config_cleanup(cfg);
+                return NULL;
+            }
+        } else if(isequal(json, tokens[i], "ping_count")) {
+            char *buf = getdata(json, tokens, i);
+            ++i;
+            
+            if(!is_a_number(buf)) {
+                log_err("ping_count must be a number");
+                free(buf);
+                config_cleanup(cfg);
+                return NULL;
+            }
+
+            cfg->ping_count = atoi(buf);
+            free(buf);
         }
     }
 

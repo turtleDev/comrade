@@ -40,36 +40,18 @@ static char * get_abs_path(char *file) {
     }
 
     return abspath;
-    /*
-    if( file[0] == '/') {
-        return strdup(file);
-    }
-    char *wd = getenv("PWD");
-    char *rc = get_dir_name(argv0);
-    char *base = rc ? "" : rc;
-    // if you're wondering what the +5 is, that's just for safety.
-    int count = strlen(wd) + strlen(file) + strlen(argv0) + 5;
-
-    char* abspath = malloc(sizeof(char) * count);
-    if(!abspath) {
-        log_err("out of memory");
-        return NULL;
-    }
-    sprintf(abspath, "%s/%s/%s", wd, base, file);
-
-    return abspath; 
-    */
+    
 }
 
 int _display_notification_linux(struct Config *cfg) {
     int icon_exists = 1;
     int sound_exists = 1;
 
-    if(!path_isfile(cfg->icon_file)) {
+    if(cfg->icon_file && !path_isfile(cfg->icon_file)) {
         icon_exists = 0;
     }
 
-    if(!path_isfile(cfg->sound_file)) {
+    if(cfg->sound_file && !path_isfile(cfg->sound_file)) {
         sound_exists = 0;
     }
 
@@ -102,7 +84,9 @@ int _display_notification_linux(struct Config *cfg) {
     }
 
     // play the sound
-    play_notification_sound(snd);
+    if(snd) {
+        play_notification_sound(snd);
+    }
   
     // free the notifiction object
     g_object_unref(G_OBJECT(notification));

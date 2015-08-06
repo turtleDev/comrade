@@ -8,6 +8,7 @@
 
 #include <string.h>
 
+#include "config.h"
 #include "debug.h"
 #include "path.h"
 
