@@ -11,9 +11,13 @@ config_test:
 notification_test:
 	gcc notification_test.c ../notification.c ../path.c  ../notification_sound.c  `pkg-config --cflags --libs gtk+-2.0 glib-2.0 ` ../../lib/linux/x86_64/libgorilla.a -lm -lnotify ../../lib/linux/x86_64/libopenal.so -o notification_test
 
+ping_test:
+	gcc ping_test.c ../ping.c -o ping_test
+
 clean:
 	rm -i -f *.o
 	rm -i -f locktest
 	rm -i -f ns_test
 	rm -i -f config_test
 	rm -i -f notification_test
+	rm -i -f ping_test

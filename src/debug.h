@@ -29,7 +29,7 @@
                                  __FILE__, __LINE__, __func__,errno_msg(),\
                                  ##__VA_ARGS__)
 
-#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] : " M "\n", \
+#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] %s: " M "\n", \
                                  __FILE__, __LINE__, __func__,errno_msg(),\
                                  ##__VA_ARGS__)
 
