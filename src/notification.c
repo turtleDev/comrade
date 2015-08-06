@@ -18,6 +18,7 @@
 #include "notification_sound.h"
 #include "debug.h"
 
+/*
 static char * get_dir_name(char *path) {
     int i = strlen(path);
     for(;path[i] != '/'; --i) {
@@ -28,7 +29,7 @@ static char * get_dir_name(char *path) {
     ++i;
     return path + i;
 }
-
+*/
 static char * get_abs_path(char *file) {
     
     char *abspath = malloc(sizeof(char) * PATH_MAX);

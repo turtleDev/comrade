@@ -49,6 +49,7 @@ static int _run_stat(const char *fname, int flag) {
             return rc;
         default:
             log_err("Bad flag");
+            return 0;
     }
 }
 
