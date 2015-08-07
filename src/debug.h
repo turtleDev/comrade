@@ -21,17 +21,17 @@
 
 #define errno_msg() (errno == 0 ? "":strerror(errno))
 
-#define log_err(M, ... ) fprintf(stderr, "[ERROR: %s(%d):%s()] %s: " M "\n", \
-                                 __FILE__, __LINE__, __func__,errno_msg(),\
-                                 ##__VA_ARGS__)
+#define log_err(M, ... ) fprintf(stderr, "[ERROR: %s(%d):%s()] " M "( %s )\n", \
+                                 __FILE__, __LINE__, __func__,\
+                                 ##__VA_ARGS__,errno_msg())
 
-#define log_warn(M, ... ) fprintf(stderr, "[WARNING: %s(%d):%s()] %s: " M "\n", \
-                                 __FILE__, __LINE__, __func__,errno_msg(),\
-                                 ##__VA_ARGS__)
+#define log_warn(M, ... ) fprintf(stderr, "[WARNING: %s(%d):%s()] " M "( %s )\n", \
+                                 __FILE__, __LINE__, __func__,\
+                                 ##__VA_ARGS__, errno_msg())
 
-#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] %s: " M "\n", \
-                                 __FILE__, __LINE__, __func__,errno_msg(),\
-                                 ##__VA_ARGS__)
+#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] " M "( %s )\n", \
+                                 __FILE__, __LINE__, __func__,\
+                                 ##__VA_ARGS__, errno_msg())
 
 
 #define check(A, M, ... ) if(!(A)) { log_err(M, ##__VA_ARGS__); errno=0; \

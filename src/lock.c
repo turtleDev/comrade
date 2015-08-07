@@ -7,11 +7,12 @@
 
 
 #include <stdio.h>
-#include <fcntl.h>
+#include <sys/file.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "debug.h"
+#include "path.h"
 
 // --- Linux Specific Locking ---
 

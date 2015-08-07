@@ -28,7 +28,7 @@ int isequal(const char *json, jsmntok_t t, const char *s) {
    return 0;
 }
 
-char * getdata(const char *json, jsmntok_t t[], int i) {
+char *getdata(const char *json, jsmntok_t t[], int i) {
     char *str = strndup(json + t[i+1].start,t[i+1].end - t[i+1].start);
     return str;
 }
@@ -45,7 +45,7 @@ int is_a_number(char *str) {
     return 1;
 }
 
-struct Config * config_load(const char *json) {
+struct Config *config_load(const char *json) {
     int rc;
     jsmn_parser parser;
 
@@ -174,6 +174,7 @@ void config_cleanup(struct Config *cfg) {
         if(cfg->message) free(cfg->message);
         if(cfg->sound_file) free(cfg->sound_file);
         if(cfg->icon_file) free(cfg->icon_file);
+        if(cfg->address) free(cfg->address);
         free(cfg);
     }
 }

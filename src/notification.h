@@ -14,7 +14,7 @@
 int _display_notification_linux(struct Config *cfg);
 
 #ifdef __linux__
-#define display_notification(cfg) _display_notification_linux(cfg);
+#define display_notification(cfg) _display_notification_linux(cfg)
 #endif
 
 #endif

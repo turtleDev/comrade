@@ -18,7 +18,7 @@
 #include "ping.h"
 #include "lock.h"
 
-char * read_file(FILE *f) {
+char *read_file(FILE *f) {
     int count = 0;
     while(fgetc(f) != EOF) ++count;
     rewind(f);
@@ -43,17 +43,29 @@ char *DEFAULT_CONFIG = \
    \"message\": \"your internet is now working\", \
    \"address\": 127.0.0.1, \
    \"ping_count\": 4 }";
+
+char *MSG_ANOTHER_INSTANCE = \
+"{ \"title\": \"Comrade\", \
+   \"message\":\"Another instance is already running\" }";
         
 /* TODO: add usage string */
 
 int main(int argc, char *argv[]) {
     /*TODO: add cmd line option parsing */
-    /*TODO: add locking */
-    /*TODO: make logging more meaingful */
     /*TODO: add better safety checking */
     /*TODO: TODO FTW! */
 
-    
+    if(lock_acquire(argv[0])) {
+        struct Config *cfg;
+        cfg = config_load(MSG_ANOTHER_INSTANCE);
+
+        if(display_notification(cfg)) {
+            log_err("Another instance is already running");
+        }
+        config_cleanup(cfg);
+        return -1;
+    }
+
     char *config_file = "config.json";
     FILE *f;
     struct Config *cfg = NULL;
@@ -62,17 +74,19 @@ int main(int argc, char *argv[]) {
 
     if(!f) {
         log_err("unable to open the file: %s", config_file);
+        errno = 0;
     } else {
         char *config_string = read_file(f);
         fclose(f);
         cfg = config_load(config_string);
+
+        if(!cfg) {
+            log_warn("unable to parse configuration file: %s", config_file);
+            log_info("using default configuration");
+        }
     }
 
-    if(!cfg) {
-        log_warn("unable to parse configuration file: %s", config_file);
-        log_info("using default configuration");
-        cfg = config_load(DEFAULT_CONFIG);
-    }
+    if(!cfg) cfg = config_load(DEFAULT_CONFIG);
 
     int rc;
 
@@ -86,6 +100,8 @@ int main(int argc, char *argv[]) {
             sleep(4);
         }
     }
+
+    lock_release();
     config_cleanup(cfg);
     return 0;
 }
