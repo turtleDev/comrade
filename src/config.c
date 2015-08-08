@@ -21,7 +21,7 @@
 
 /* TODO: include headers using windows path on windows platform */
 
-int isequal(const char *json, jsmntok_t t, const char *s) {
+static int isequal(const char *json, jsmntok_t t, const char *s) {
    if(t.type == JSMN_STRING && (strlen(s) == (t.end - t.start)) &&
       !strncmp(json + t.start, s, t.end - t.start)) { 
         return 1;
@@ -29,12 +29,12 @@ int isequal(const char *json, jsmntok_t t, const char *s) {
    return 0;
 }
 
-char *getdata(const char *json, jsmntok_t t[], int i) {
+static char *getdata(const char *json, jsmntok_t t[], int i) {
     char *str = strndup(json + t[i+1].start,t[i+1].end - t[i+1].start);
     return str;
 }
    
-int is_a_number(char *str) {
+static int is_a_number(char *str) {
     int i;
     int len = strlen(str);
     for(i = 0; i < len; ++i) {

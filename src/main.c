@@ -60,6 +60,12 @@ void usage(void) {
     return;
 }
 
+void replace_str(char *src, char *dest) {
+    if(dest) free(dest);
+
+    dest = strdup(src);
+}
+
 int main(int argc, char *argv[]) {
 
     int i;
@@ -71,16 +77,14 @@ int main(int argc, char *argv[]) {
     }
 
     if(lock_acquire(argv[0])) {
-
         // if we're unable to acquire lock
         struct Config *cfg;
         cfg = config_load(MSG_ANOTHER_INSTANCE);
         
         // if we're unable to parse config string for some reason or
         // in case display_notification fails, log the message.
-        if(!cfg || display_notification(cfg)) {
-            log_err("Another instance is already running");
-        }
+        check(!cfg || display_notification(cfg),
+              "Another instance is already running")
         config_cleanup(cfg);
         return -1;
     }
@@ -109,9 +113,40 @@ int main(int argc, char *argv[]) {
 
     if(!cfg) cfg = config_load(DEFAULT_CONFIG);
 
+    for(i = 0; i < argc; ++i) {
+        if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
+            if(argv[i+1] != NULL) {
+                replace_str(argv[i+1], cfg->address);
+            } else {
+                fprintf(stderr, "Comrade: was expecting a website\n");
+                config_cleanup(cfg);
+                return -1;
+            }
+        }
+
+        if(!strcmp(argv[i], "-c") || !strcmp(argv[i], "--count")) {
+            if(argv[i+1] != NULL) {
+                // ping_count is an int
+                int num = atoi(argv[i+1]);
+                if(num == 0) {
+                    fprintf(stderr, "Comrade: invalid count\n");
+                    config_cleanup(cfg);
+                    return -1;
+                }
+                cfg->ping_count = num;
+            } else {
+                fprintf(stderr, "Comrade: was expecting a ping count\n");
+                config_cleanup(cfg);
+                return -1;
+            }
+        }
+    }
+
+
     int rc;
     time_t start_time = time(NULL);
     int attempts = 1;
+    struct Config *timeout_cfg = NULL;
     double diff;
     while(1) {
         // if the time since start exceeds the timeout duration(in minutes),
@@ -129,12 +164,11 @@ int main(int argc, char *argv[]) {
             diff = diff/60;
             sprintf(msg, MSG_TIMEOUT, diff, attempts);
             
-            struct Config *timeout_cfg = config_load(msg);
+            timeout_cfg = config_load(msg);
             
-            if(!timeout_cfg || display_notification(timeout_cfg)) {
-                log_err("timed out after %.2f minutes and %d failed attempts",
-                        diff, attempts);
-            }
+            check(!timeout_cfg || display_notification(timeout_cfg),
+                  "timed out after %.2f minutes and %d failed attempts",
+                        diff, attempts); 
             free(msg);
             config_cleanup(timeout_cfg);
             break;
@@ -153,4 +187,9 @@ int main(int argc, char *argv[]) {
     lock_release();
     config_cleanup(cfg);
     return 0;
+
+error:
+    if(cfg) config_cleanup(cfg);
+    if(timeout_cfg) config_cleanup(timeout_cfg);
+    return -1;
 }
