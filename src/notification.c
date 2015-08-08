@@ -21,6 +21,7 @@
 static char *get_abs_path(char *file) {
     
     char *abspath = malloc(sizeof(char) * PATH_MAX);
+    memset(abspath, '\0', sizeof(char) * PATH_MAX);
     realpath(file, abspath);
     
     if(!abspath) {

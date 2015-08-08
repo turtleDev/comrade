@@ -24,6 +24,7 @@ char *read_file(FILE *f) {
     rewind(f);
     
     char *str = malloc(sizeof(char) * (count+1));
+    memset(str, '\0', sizeof(char) * (count+1));
     char ch;
     int i;
 

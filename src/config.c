@@ -50,14 +50,11 @@ static int is_a_number(char *str) {
 }
 
 struct Config *config_load(const char *json) {
-    int rc;
     jsmn_parser parser;
-
-    jsmntok_t *tokens = NULL;
-
     jsmn_init(&parser);
-
+    jsmntok_t *tokens = NULL;
     // parse the number of tokens.
+    int rc = 0;
     rc = jsmn_parse(&parser, json, strlen(json), NULL, 0);
 
     if ( rc == JSMN_ERROR_INVAL || rc == JSMN_ERROR_PART ) {
