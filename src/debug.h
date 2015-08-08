@@ -21,15 +21,15 @@
 
 #define errno_msg() (errno == 0 ? "":strerror(errno))
 
-#define log_err(M, ... ) fprintf(stderr, "[ERROR: %s(%d):%s()] " M "( %s )\n", \
+#define log_err(M, ... ) fprintf(stderr, "[ERROR: %s(%d):%s()] " M " ( %s )\n", \
                                  __FILE__, __LINE__, __func__,\
                                  ##__VA_ARGS__,errno_msg())
 
-#define log_warn(M, ... ) fprintf(stderr, "[WARNING: %s(%d):%s()] " M "( %s )\n", \
+#define log_warn(M, ... ) fprintf(stderr, "[WARNING: %s(%d):%s()] " M " ( %s )\n", \
                                  __FILE__, __LINE__, __func__,\
                                  ##__VA_ARGS__, errno_msg())
 
-#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] " M "( %s )\n", \
+#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] " M " ( %s )\n", \
                                  __FILE__, __LINE__, __func__,\
                                  ##__VA_ARGS__, errno_msg())
 

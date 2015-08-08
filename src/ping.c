@@ -14,9 +14,13 @@
 
 int _ping_linux(const char *addr, int count) {
 
-    // 16 bytes are extra padding, just in case.
-    int len = strlen(addr) + strlen("ping ") + 16;
+    // 32 bytes are extra padding, just in case.
+    int len = strlen(addr) + strlen("ping ") + 32;
     char *cmd = malloc(sizeof(char) * len);
+
+    if(count <= 0) {
+        count = 1;
+    }
     
     sprintf(cmd, "ping %s -c %d 2>&1", addr, count);
 

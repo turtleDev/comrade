@@ -15,6 +15,7 @@ struct Config {
     char *sound_file;
     char *icon_file;
     char *address;
+    float timeout;
     int ping_count;
 };
 

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "debug.h"
 
@@ -38,6 +39,9 @@ int is_a_number(char *str) {
     int len = strlen(str);
     for(i = 0; i < len; ++i) {
         if(!isdigit(str[i])) {
+            if (str[i] == '.'){
+                continue;
+            }
             return 0;
         }
     }
@@ -92,10 +96,10 @@ struct Config *config_load(const char *json) {
         return NULL;
     }
 
-    cfg->title = NULL;
-    cfg->message = NULL;
-    cfg->sound_file = NULL;
-    cfg->icon_file = NULL;
+    // set everythin to \0 (null). This makes it safe to 
+    // free this structure anytime, without worrying about whether
+    // the fields(char *ptrs) were properly initialized or not.
+    memset(cfg, '\0', sizeof(struct Config));
 
     int i;
     // we're only going to parse the data inside the first object.
@@ -159,7 +163,20 @@ struct Config *config_load(const char *json) {
                 return NULL;
             }
 
-            cfg->ping_count = atoi(buf);
+            cfg->ping_count = abs(atoi(buf));
+            free(buf);
+        } else if(isequal(json, tokens[i], "timeout")) {
+            char *buf = getdata(json, tokens, i);
+            ++i;
+
+            if(!is_a_number(buf)) {
+                log_err("timeout must be a number");
+                free(buf);
+                config_cleanup(cfg);
+                return NULL;
+            }
+
+            cfg->timeout = fabs(atof(buf));
             free(buf);
         }
     }
