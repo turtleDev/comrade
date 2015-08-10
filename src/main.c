@@ -64,6 +64,13 @@ char *read_file(FILE *f) {
     return str;
 }
 
+
+void replace_str(char *src, char *dest) {
+    if(dest) free(dest);
+    dest = strdup(src);
+}
+
+
 const char *DEFAULT_CONFIG = \
 "{ \"title\": \"notification\", \
    \"message\": \"your internet is now working\", \
@@ -79,25 +86,38 @@ const char *MSG_TIMEOUT = \
 "{ \"title\":\"Comrade\", \
    \"message\":\"Timed out after %.2f minutes and %d failed attempts\"}";
 
-void usage(void) {
-    char *usage_string = \
-        "usage: comrade [-h|--help]";
-    printf("%s\n", usage_string);
-    return;
-}
+const char *USAGE = "\
+Comrade: Know when your internet is up              \n\
+                                                    \n\
+usage: comrade [OPTION]                             \n\
+                                                    \n\
+options:                                            \n\
+        -h, --help :     display this message       \n\
+        -c, --count n:   ping for atleast n count   \n\
+        -w, --website x: website to ping            \n\
+        -t, --timeout t: timeout after t minutes    \n\
+                                                    \n\
+Note: Comrade will try to load a file called        \n\
+      'config.json', from the directory where the   \n\
+      executable is present to configure itself.    \n\
+      If it is unable to load that file, then it    \n\
+      will use a default configuration that is      \n\
+      built into it. If any command line option     \n\
+      is passed to Comrade, then such option will   \n\
+      overide that particular part of Comrade's     \n\
+      configuration.                                \n\
+                                                    \n\
+    Copyright (C) 2015 Saravjeet Aman Singh         \n\
+    <saravjeetamansingh@gmail.com>                  \n\
+";
 
-void replace_str(char *src, char *dest) {
-    if(dest) free(dest);
-
-    dest = strdup(src);
-}
 
 int main(int argc, char *argv[]) {
 
     int i;
     for(i = 1 ; i < argc; ++i) {
         if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
-            usage();
+            printf("%s", USAGE);
             return 0;
         }
     }
@@ -139,7 +159,7 @@ int main(int argc, char *argv[]) {
 
     if(!cfg) cfg = config_load(DEFAULT_CONFIG);
 
-    for(i = 0; i < argc; ++i) {
+    for(i = 1; i < argc; ++i) {
         if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
             if(argv[i+1] != NULL) {
                 replace_str(argv[i+1], cfg->address);
@@ -153,7 +173,7 @@ int main(int argc, char *argv[]) {
         if(!strcmp(argv[i], "-c") || !strcmp(argv[i], "--count")) {
             if(argv[i+1] != NULL) {
                 // ping_count is an int
-                int num = atoi(argv[i+1]);
+                int num = abs(atoi(argv[i+1]));
                 if(num == 0) {
                     fprintf(stderr, "Comrade: invalid count\n");
                     config_cleanup(cfg);
