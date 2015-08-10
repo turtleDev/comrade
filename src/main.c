@@ -37,12 +37,18 @@
 #include "ping.h"
 #include "lock.h"
 
+// read_file(f) returns a pointer to a string, that points to an array of 
+// characters, that represent the contents of the file f. The string is 
+// dynamically allocated using malloc. return NULL on error.
 char *read_file(FILE *f) {
     int count = 0;
     while(fgetc(f) != EOF) ++count;
     rewind(f);
     
     char *str = malloc(sizeof(char) * (count+1));
+    if(!str) {
+        return NULL;
+    }
     memset(str, '\0', sizeof(char) * (count+1));
     char ch;
     int i;
