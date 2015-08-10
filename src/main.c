@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <math.h>
 #include <time.h>
 
 #include "debug.h"
@@ -95,7 +96,7 @@ options:                                            \n\
         -h, --help :     display this message       \n\
         -c, --count n:   ping for atleast n count   \n\
         -w, --website x: website to ping            \n\
-        -t, --timeout t: timeout after t minutes    \n\
+        -t, --timeout m: timeout after m minutes    \n\
                                                     \n\
 Note: Comrade will try to load a file called        \n\
       'config.json', from the directory where the   \n\
@@ -182,6 +183,21 @@ int main(int argc, char *argv[]) {
                 cfg->ping_count = num;
             } else {
                 fprintf(stderr, "Comrade: was expecting a ping count\n");
+                config_cleanup(cfg);
+                return -1;
+            }
+        }
+        if(!strcmp(argv[i], "-t") || !strcmp(argv[i], "--timeout")) {
+            if(argv[i+1] != NULL) {
+                float minutes = fabs(atof(argv[i+1]));
+                if(minutes == 0.0) {
+                    fprintf(stderr, "Comrade: invalid timeout duration\n");
+                    config_cleanup(cfg);
+                    return -1;
+                }
+                cfg->timeout = minutes;
+            } else {
+                fprintf(stderr, "Comrade: was expecting timeout duration\n");
                 config_cleanup(cfg);
                 return -1;
             }
