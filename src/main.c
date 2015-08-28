@@ -218,7 +218,7 @@ int main(int argc, char *argv[]) {
         // if the time since start exceeds the timeout duration(in minutes),
         // then log and exit.
         diff = difftime(time(NULL), start_time);
-        if( diff > (cfg->timeout *60)) {
+        if((cfg->timeout != -1) && diff > (cfg->timeout *60)) {
            
 
             // allocate space for our msg. +16 is padding for
