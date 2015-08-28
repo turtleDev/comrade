@@ -38,9 +38,12 @@
 #include "ping.h"
 #include "lock.h"
 
-// read_file(f) returns a pointer to a string, that points to an array of 
-// characters, that represent the contents of the file f. The string is 
-// dynamically allocated using malloc. return NULL on error.
+/*
+ * read_file() reads a file and stores its content in an array.
+ * The array is allocated from heap, so remember to free it.
+ * returns NULL on error.
+ */
+
 char *read_file(FILE *f) {
     int count = 0;
     while(fgetc(f) != EOF) ++count;
@@ -130,8 +133,9 @@ int main(int argc, char *argv[]) {
         
         // if we're unable to parse config string for some reason or
         // in case display_notification fails, log the message.
-        check(!cfg || display_notification(cfg),
-              "Another instance is already running")
+        if(!cfg || display_notification(cfg)) {
+              fprintf(stderr,"Another instance is already running\n");
+        }
         config_cleanup(cfg);
         return -1;
     }
@@ -228,9 +232,11 @@ int main(int argc, char *argv[]) {
             
             timeout_cfg = config_load(msg);
             
-            check(!timeout_cfg || display_notification(timeout_cfg),
-                  "timed out after %.2f minutes and %d failed attempts",
+            if(!timeout_cfg || display_notification(timeout_cfg)) {
+                fprintf(stderr,
+                        "timed out after %.2f minutes and %d failed attempts\n",
                         diff, attempts); 
+            }
             free(msg);
             config_cleanup(timeout_cfg);
             break;
@@ -249,9 +255,4 @@ int main(int argc, char *argv[]) {
     lock_release();
     config_cleanup(cfg);
     return 0;
-
-error:
-    if(cfg) config_cleanup(cfg);
-    if(timeout_cfg) config_cleanup(timeout_cfg);
-    return -1;
 }
