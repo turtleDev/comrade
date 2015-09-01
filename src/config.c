@@ -58,7 +58,7 @@ static int is_a_number(char *str) {
     int len = strlen(str);
     for(i = 0; i < len; ++i) {
         if(!isdigit(str[i])) {
-            if (str[i] == '.'){
+            if (str[i] == '.' || str[i] == '-'){
                 continue;
             }
             return 0;
@@ -192,7 +192,7 @@ struct Config *config_load(const char *json) {
                 return NULL;
             }
 
-            cfg->timeout = fabs(atof(buf));
+            cfg->timeout = atof(buf);
             free(buf);
         }
     }

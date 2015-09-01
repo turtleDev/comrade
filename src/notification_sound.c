@@ -39,8 +39,7 @@
 /* TODO: include gorrila headers on win machines */
 
 static const char *formats[] = {"wav"};
-// you'll have to update this manually. No way around it for now, I'm afraid.
-static const int f_count = 1;
+static const int f_count = sizeof(formats[0])/sizeof(formats);
 
 // is_format_supported(file, fmt) takes two args, a filename and a char buffer.
 // it checks if the said format exists in the global formats[] variable 
