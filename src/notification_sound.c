@@ -97,9 +97,15 @@ int play_notification_sound(const char *file) {
                                                 &gau_on_finish_destroy, 0, 0);
 
     ga_handle_play(handle);
-    while(handle->state !=  GA_HANDLE_STATE_DESTROYED) {
+    /* do not play the sound for more than 30 seconds */
+    const int max_duration = 30;
+    int current_duration = 0;
+    while(handle->state !=  GA_HANDLE_STATE_DESTROYED && 
+          current_duration < max_duration) {
+
         gau_manager_update(mgr);
         gc_thread_sleep(1);
+        current_duration += 1;
     }
 
     gau_manager_destroy(mgr);
