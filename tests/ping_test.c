@@ -1,4 +1,4 @@
-#include "../ping.h"
+#include "../src/ping.h"
 #include <stdio.h>
 
 int main() {

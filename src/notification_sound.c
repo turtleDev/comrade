@@ -26,89 +26,96 @@
  */
 
 #include <string.h>
+#include <stdbool.h>
 
 #include "config.h"
 #include "debug.h"
 #include "path.h"
 
 #ifdef __linux
-#include "include/gorilla/ga.h"
-#include "include/gorilla/gau.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #endif
+
 
 /* TODO: include gorrila headers on win machines */
 
-static const char *formats[] = {"wav"};
-static const int f_count = sizeof(formats[0])/sizeof(formats);
-
-// is_format_supported(file, fmt) takes two args, a filename and a char buffer.
-// it checks if the said format exists in the global formats[] variable 
-// and if it does, it copies the format to fmt. returns 1 for True and 0 for
-// False.
-
-static int is_format_supported(const char *file, char *fmt) {
-    int l = 0;
-    for(l = strlen(file) -1; file[l] != '.'; --l) {
-        if( l == 0 ) {
-            // no extension found
-            return 0;
-        }
-    }
-    // since l currently indexes to '.(extension)', we want to move it one
-    // index forward so it indexes to (extension) instead
-    ++l;
-
-    char ext[256];
-    strcpy(ext, file + l);
-
-    int i;
-    for(i = 0; i < f_count; ++i) {
-        if(!strcmp(formats[i], ext)) {
-            strcpy(fmt, ext);
-            return 1;
-        }
-    }
-    
-    return 0;
-}
+/**
+ * TODO: add code to differentiate between 'sample' sound likes
+ * like WAV, OGG etc and between streaming(?) sounds like mp3,
+ * and then handle them appropriately
+ */
 
 int play_notification_sound(const char *file) {
 
-    if(!file) return -1;
-
-    if( !path_isfile(file) ) {
+    /** 
+     * check if the file actually exists
+     */
+    if ( !file || !path_isfile(file) ) {
         return -1;
     }
 
-    // since filename size have a limit of 256 chars, I've made this buffer
-    // equal 256 chars, because I'm paranoid as ... yeah.
-    char fmt[256] = {"wav"};
+    // initialize the SDL audio module
+    check(SDL_Init(SDL_INIT_AUDIO) >= 0, "Error: %s", SDL_GetError());
+   
+    // initialize SDL_mixer module
+    check(
+        Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == 0,
+        "Error: %s", SDL_GetError()
+    );
 
-    if(!is_format_supported(file, fmt)) {
-        log_err("Unsupported audio format");
-        return -1;
+    // load the music file
+    Mix_Chunk *sound = NULL;
+    check((sound = Mix_LoadWAV(file)) != NULL, "Error: %s", SDL_GetError());
+
+    /**
+     * play music, but don't loop
+     */
+    Mix_PlayChannel(-1, sound, 0);
+
+    /**
+     * NOTE: SDL will automatically play sounds in a seperate thread,
+     * that will not DIE if the program gets a SIGINT. In other words,
+     * we are running in a seprate thread here, so we'll have to check
+     * for ourselves if we need to stop doing, what we're doing
+     */
+
+    /**
+     * SDL_Event is a union that is used to store an event
+     * being processed
+     */
+    SDL_Event e;
+
+    bool playing = true;
+
+    while ( playing ) {
+        while ( SDL_PollEvent(&e) ) {
+            // check if the main thread wants to die.
+            if ( e.type == SDL_QUIT ) {
+                playing = false;
+            }
+        }
+       
+        // check if music has stopped playing
+        if ( !Mix_Playing(-1) ) {
+            playing = false;
+        }
+
+        /**
+         * by using SDL_Delay(), we make sure we don't
+         * cause a burn lock. This is an optimization;
+         * Otherwise, the CPU will loop at full speed, 
+         * buring power for no reason
+         */
+        SDL_Delay(500);
     }
-    
-    gc_initialize(0);
-    gau_Manager *mgr = gau_manager_create(0);
-    ga_Mixer *mixer = gau_manager_mixer(mgr);
-    ga_Sound *snd = gau_load_sound_file(file, fmt);
-    ga_Handle *handle = gau_create_handle_sound(mixer, snd, 
-                                                &gau_on_finish_destroy, 0, 0);
 
-    ga_handle_play(handle);
-    /* do not play the sound for more than 30 seconds */
-    const int max_duration = 30;
-    int current_duration = 0;
-    while(handle->state !=  GA_HANDLE_STATE_DESTROYED && 
-          current_duration < max_duration) {
+    SDL_Quit();
 
-        gau_manager_update(mgr);
-        gc_thread_sleep(1);
-        current_duration += 1;
-    }
-
-    gau_manager_destroy(mgr);
-    gc_shutdown();
     return 0;
+
+error:
+    SDL_Quit();
+
+    return -1;
 }

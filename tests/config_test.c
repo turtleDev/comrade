@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../config.h"
+#include "../src/config.h"
 
 
 void test_json(const char *string) {

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../lock.h"
+#include "../src/lock.h"
 
 int main(int argc, char *argv[]) {
     int rc = lock_acquire(argv[0]);
