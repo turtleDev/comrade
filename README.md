@@ -5,7 +5,7 @@ The current build only works for linux, but windows support is on the way.
 
 ##Dependencies
 * jsmn ( lightweight JSON parser for C )
-* gorilla-audio ( cross platform highlevel mixer audio library )
+* SDL2 ( with SDL2 mixer extension )
 * libnotify ( a passive notification library) [ linux/unix ]
 
 
