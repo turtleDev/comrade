@@ -32,13 +32,17 @@
 #include <math.h>
 #include <time.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "debug.h"
 #include "config.h"
 #include "notification.h"
 #include "ping.h"
 #include "lock.h"
+#include "path.h"
 
-/*
+/**
  * read_file() reads a file and stores its content in an array.
  * The array is allocated from heap, so remember to free it.
  * returns NULL on error.
@@ -69,14 +73,89 @@ char *read_file(FILE *f) {
 }
 
 
+/**
+ * replace dest string with src string.
+ *
+ * Assumes that both were dynamically allocated
+ */
 void replace_str(char *src, char *dest) {
     if(dest) free(dest);
     dest = strdup(src);
 }
 
 
+/**
+ * get_config_path() returns the path to the 
+ * configuration file config.json.
+ */
+char *get_config_path(void) {
+    char *home = getenv("HOME");
+    char *path = NULL;
+
+    if (home) {
+        // create a path string to $HOME/.local
+        int len = strlen(home) + strlen("/.local") + 1;
+        path = malloc(len * sizeof(char));
+        check(path != NULL, "out of memory");
+
+        sprintf(path, "%s/%s", home, ".local");
+
+        // check if $HOME/.local exists
+        if (path_isdir(path)) {
+            // create path to $HOME/.local/Comrade
+            len = strlen(path) + strlen("/Comrade") + 1;
+            check(
+                (path = realloc(path, sizeof(char) * len)) != NULL,
+                "out of memory"
+            );
+    
+            strcat(path, "/Comrade");
+
+            // check for its existance
+            if ( !path_isdir(path) ) {
+                check(
+                    mkdir(path, 0777) == 0, "unable to create directory"
+                );
+            }
+
+            // now create the final path to config.json
+            len = strlen(path) + strlen("/config.json") + 1;
+            check(
+                (path = realloc(path, sizeof(char) * len)) != NULL,
+                "out of memory"
+            );
+
+            strcat(path, "/config.json");
+
+            return path;
+
+        } else {
+            
+            // $HOME/.local does not exist. so we're going 
+            // to use $HOME/.comrade.json instead
+            free(path);
+
+            len = strlen(home) + strlen("/.comrade.json") + 1;
+            path = malloc(sizeof(char) * len);
+            check(path != NULL, "out of memory");
+            
+            sprintf(path, "%s/%s", home, ".comrade.json");
+
+            return path;
+        }
+
+    } else {
+        // Since we got no home, we can't afford no configuration
+        return NULL;
+    }
+
+error:
+    if (path) free(path);
+    return NULL;
+}
+
 const char *DEFAULT_CONFIG = \
-"{ \"title\": \"notification\", \
+"{ \"title\": \"Comrade\", \
    \"message\": \"your internet is now working\", \
    \"address\": 127.0.0.1, \
    \"ping_count\": 4 , \
@@ -93,7 +172,7 @@ const char *MSG_TIMEOUT = \
 const char *USAGE = "\
 Comrade: Know when your internet is up              \n\
                                                     \n\
-usage: comrade [OPTION]                             \n\
+usage: comrade [OPTIONS]                            \n\
                                                     \n\
 options:                                            \n\
         -h, --help :     display this message       \n\
@@ -140,7 +219,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    char *config_file = "config.json";
+    char *config_file = get_config_path();
     FILE *f;
     struct Config *cfg = NULL;
 
@@ -152,8 +231,10 @@ int main(int argc, char *argv[]) {
         errno = 0;
     } else {
         char *config_string = read_file(f);
-        fclose(f);
         cfg = config_load(config_string);
+
+        // free up the resources that we no longer need
+        fclose(f);
         
         // unable to parse configuration string.
         if(!cfg) {
@@ -162,8 +243,26 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if(!cfg) cfg = config_load(DEFAULT_CONFIG);
+    if(!cfg) {
+        // load default config
+        cfg = config_load(DEFAULT_CONFIG);
+        
+        // write the default configuration to disk.
+        if (config_file) {
+            FILE *cf = NULL;
+            cf = fopen(config_file, "w");
 
+            if (cf) {
+                fprintf(cf, "%s", DEFAULT_CONFIG);
+                fclose(cf);
+            }
+        }
+    }
+    
+    /**
+     * TODO: replace the following block of code with a version 
+     *       that uses getopt_long instead.
+     */
     for(i = 1; i < argc; ++i) {
         if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
             if(argv[i+1] != NULL) {

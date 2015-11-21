@@ -33,6 +33,32 @@
 #include "debug.h"
 #include "path.h"
 
+
+/**
+ * basename_custom returns the index after the last
+ * '/' in a string, or 0 if there weren't any. 
+ * This is useful to determine the basename
+ * ( that is, files name) is an absolute path
+ * string
+ *
+ * you can determine the base name of an absolute
+ * path like this:
+ * char *s = as + basname_offset(as);
+ *
+ * if the path is not an abolsute path, that works
+ * too, because then it returns 0.
+ */
+static int basename_offset(char *string)
+{
+    int i;
+    for (i = strlen(string)-1; i > 0; --i) {
+        if ( string[i] == '/' ) {
+            return i+1;
+        }
+    }
+    return i;
+}
+
 // --- Linux Specific Locking ---
 
 static FILE *lf = NULL;
@@ -42,6 +68,9 @@ int _lock_acquire_linux(char *program_name) {
 
     char *tmp_dir = NULL;
     char *user = getenv("USER");
+    
+    // see basename_custom 
+    char *base = program_name + basename_offset(program_name);
     
     if(P_tmpdir) {
         tmp_dir = strdup(P_tmpdir);
@@ -57,7 +86,7 @@ int _lock_acquire_linux(char *program_name) {
     }
     
     int count = strlen(tmp_dir) + 
-                strlen(program_name) +
+                strlen(base) +
                 strlen(user) +
                 strlen(".lock") +
                 5; // Just as a precaution;
@@ -66,7 +95,7 @@ int _lock_acquire_linux(char *program_name) {
     check(linux_lockfile, "Out of memory");
 
     sprintf(linux_lockfile,"%s/%s-%s.lock",
-             tmp_dir, program_name, user);
+             tmp_dir, base, user);
 
 
     lf = fopen(linux_lockfile, "w");

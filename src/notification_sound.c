@@ -21,7 +21,7 @@
 
 /*
  *
- *      notification_sound.c - notificaion sound
+ *      notification_sound.c - notification sound
  *
  */
 
