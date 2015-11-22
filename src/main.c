@@ -48,11 +48,18 @@ const char *DEFAULT_CONFIG = \
    \"message\": \"your internet is now working\", \
    \"address\": 127.0.0.1, \
    \"ping_count\": 4 , \
-   \"timeout\": 5 }";    
+   \"timeout\": 5, \
+   \"urgency\": 2 }";    
 
+/**
+ * urgency should be in the range 0-2,
+ * where 0 is the lowest urgency, and 2
+ * is the highest.
+ */
 const char *MSG_START = \
 "{ \"title\":\"Comrade\", \
-   \"message\": \"starting up\" }"; 
+   \"message\": \"starting up\", \
+   \"urgency\": 0 }";  
 
 const char *MSG_ANOTHER_INSTANCE = \
 "{ \"title\": \"Comrade\", \

@@ -1,8 +1,8 @@
-CFLAGS_M=-Wall `pkg-config --cflags gtk+-2.0 glib-2.0`
+CFLAGS_M=-Wall -g `pkg-config --cflags gtk+-2.0 glib-2.0`
 LIBS_M=`pkg-config --libs gtk+-2.0 glib-2.0` -lnotify -lSDL2 -lSDL2_mixer
 LIB_JSMN=../lib/jsmn/libjsmn.a
 OBJS=config.o lock.o notification.o notification_sound.o ping.o path.o $(LIB_JSMN)
-CFLAGS= -Wall -O0
+CFLAGS= -Wall -g -O0
 
 all: libjsmn.a $(OBJS) 
 	$(CC) $(CFLAGS_M) $(OBJS)  main.c  -o comrade $(LIBS_M) 

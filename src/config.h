@@ -35,6 +35,7 @@ struct Config {
     char *icon_file;
     char *address;
     float timeout;
+    int urgency;
     int ping_count;
 };
 

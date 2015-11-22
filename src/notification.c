@@ -83,10 +83,14 @@ int _display_notification_linux(struct Config *cfg) {
     
     notification = notify_notification_new(title, msg, icon);
 
-    notify_notification_set_urgency(notification, NOTIFY_URGENCY_CRITICAL);
+    // set urgency
+    if ( cfg->urgency < 0 || cfg->urgency > 2 ) {
+        cfg->urgency = 0;
+    }
+    notify_notification_set_urgency(notification, cfg->urgency);
 
-    // set timeout for 5 seconds
-    notify_notification_set_timeout(notification, 5000);
+    // set timeout
+    notify_notification_set_timeout(notification, NOTIFY_EXPIRES_DEFAULT);
     
     if(!notify_notification_show(notification, NULL)) {
         log_err("unable to send notification");

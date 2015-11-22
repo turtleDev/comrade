@@ -117,13 +117,12 @@ struct Config *config_load(const char *json) {
     // the fields(char *ptrs) were properly initialized or not.
     memset(cfg, '\0', sizeof(struct Config));
 
-    int i;
-    // we're only going to parse the data inside the first object.
   
     // tokens.size is the number of key:value pairs. to index over each token
     // (each key and value) we'll need a limit of twice of size.
     int len = tokens[0].size * 2;
     // I start the index from one, since the index 0 is the toplevel object
+    int i;
     for(i = 1; i < len; ++i) {
         if(isequal(json, tokens[i], "title")) {
             // copy the data.
@@ -193,6 +192,19 @@ struct Config *config_load(const char *json) {
             }
 
             cfg->timeout = atof(buf);
+            free(buf);
+        } else if(isequal(json, tokens[i] , "urgency")) {
+            char *buf = getdata(json, tokens, i);
+            ++i;
+
+            if(!is_a_number(buf)) {
+                log_err("urgency must be a number");
+                free(buf);
+                config_cleanup(cfg);
+                return NULL;
+            }
+
+            cfg->urgency = atoi(buf);
             free(buf);
         }
     }
