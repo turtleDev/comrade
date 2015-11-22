@@ -7,6 +7,7 @@ all:
 	    mv src/comrade bin/; \
 	fi
 
+	@echo "\n\nBUILD SUCESSFUL"
 clean:
 	@if [ -e bin ]; then \
 		rm bin -rf; \

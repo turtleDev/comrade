@@ -42,6 +42,48 @@
 #include "lock.h"
 #include "path.h"
 
+
+const char *DEFAULT_CONFIG = \
+"{ \"title\": \"Comrade\", \
+   \"message\": \"your internet is now working\", \
+   \"address\": 127.0.0.1, \
+   \"ping_count\": 4 , \
+   \"timeout\": 5 }";    
+
+const char *MSG_ANOTHER_INSTANCE = \
+"{ \"title\": \"Comrade\", \
+   \"message\":\"Another instance is already running\" }";
+
+const char *MSG_TIMEOUT = \
+"{ \"title\":\"Comrade\", \
+   \"message\":\"Timed out after %.2f minutes and %d failed attempts\"}";
+
+const char *USAGE = "\
+Comrade: Know when your internet is up              \n\
+                                                    \n\
+usage: comrade [OPTIONS]                            \n\
+                                                    \n\
+options:                                            \n\
+        -h, --help :     display this message       \n\
+        -c, --count n:   ping for atleast n count   \n\
+        -w, --website x: website to ping            \n\
+        -t, --timeout m: timeout after m minutes    \n\
+                                                    \n\
+Note: Comrade will try to load a file called        \n\
+      'config.json', from the directory where the   \n\
+      executable is present to configure itself.    \n\
+      If it is unable to load that file, then it    \n\
+      will use a default configuration that is      \n\
+      built into it. If any command line option     \n\
+      is passed to Comrade, then such option will   \n\
+      overide that particular part of Comrade's     \n\
+      configuration.                                \n\
+                                                    \n\
+    Copyright (C) 2015 Saravjeet Aman Singh         \n\
+    <saravjeetamansingh@gmail.com>                  \n\
+";
+
+
 /**
  * read_file() reads a file and stores its content in an array.
  * The array is allocated from heap, so remember to free it.
@@ -154,47 +196,6 @@ error:
     return NULL;
 }
 
-const char *DEFAULT_CONFIG = \
-"{ \"title\": \"Comrade\", \
-   \"message\": \"your internet is now working\", \
-   \"address\": 127.0.0.1, \
-   \"ping_count\": 4 , \
-   \"timeout\": 5 }";    
-
-const char *MSG_ANOTHER_INSTANCE = \
-"{ \"title\": \"Comrade\", \
-   \"message\":\"Another instance is already running\" }";
-
-const char *MSG_TIMEOUT = \
-"{ \"title\":\"Comrade\", \
-   \"message\":\"Timed out after %.2f minutes and %d failed attempts\"}";
-
-const char *USAGE = "\
-Comrade: Know when your internet is up              \n\
-                                                    \n\
-usage: comrade [OPTIONS]                            \n\
-                                                    \n\
-options:                                            \n\
-        -h, --help :     display this message       \n\
-        -c, --count n:   ping for atleast n count   \n\
-        -w, --website x: website to ping            \n\
-        -t, --timeout m: timeout after m minutes    \n\
-                                                    \n\
-Note: Comrade will try to load a file called        \n\
-      'config.json', from the directory where the   \n\
-      executable is present to configure itself.    \n\
-      If it is unable to load that file, then it    \n\
-      will use a default configuration that is      \n\
-      built into it. If any command line option     \n\
-      is passed to Comrade, then such option will   \n\
-      overide that particular part of Comrade's     \n\
-      configuration.                                \n\
-                                                    \n\
-    Copyright (C) 2015 Saravjeet Aman Singh         \n\
-    <saravjeetamansingh@gmail.com>                  \n\
-";
-
-
 int main(int argc, char *argv[]) {
 
     int i;
@@ -241,6 +242,8 @@ int main(int argc, char *argv[]) {
             log_warn("unable to parse configuration file: %s", config_file);
             log_info("using default configuration");
         }
+
+        free(config_string);
     }
 
     if(!cfg) {
@@ -258,6 +261,9 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+  
+    // free out the strings that we no longer need
+    free(config_file);
     
     /**
      * TODO: replace the following block of code with a version 
