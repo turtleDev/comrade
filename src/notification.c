@@ -26,11 +26,12 @@
  *
  */
 
-#include <libnotify/notify.h>
-#include <glib.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <libnotify/notify.h>
+#include <glib.h>
 
 #include "notification.h"
 #include "path.h"

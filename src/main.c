@@ -50,6 +50,10 @@ const char *DEFAULT_CONFIG = \
    \"ping_count\": 4 , \
    \"timeout\": 5 }";    
 
+const char *MSG_START = \
+"{ \"title\":\"Comrade\", \
+   \"message\": \"starting up\" }"; 
+
 const char *MSG_ANOTHER_INSTANCE = \
 "{ \"title\": \"Comrade\", \
    \"message\":\"Another instance is already running\" }";
@@ -313,12 +317,19 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    /**
+     * notify the user that comrade has started
+     */
+    struct Config *starting = config_load(MSG_START);
+    display_notification(starting);
+    config_cleanup(starting);
+
 
     int rc;
     time_t start_time = time(NULL);
     int attempts = 1;
     struct Config *timeout_cfg = NULL;
-    double diff;
+    time_t diff;
     while(1) {
         // if the time since start exceeds the timeout duration(in minutes),
         // then log and exit.
@@ -340,7 +351,7 @@ int main(int argc, char *argv[]) {
             if(!timeout_cfg || display_notification(timeout_cfg)) {
                 fprintf(stderr,
                         "timed out after %.2f minutes and %d failed attempts\n",
-                        diff, attempts); 
+                        (double)diff, attempts); 
             }
             free(msg);
             config_cleanup(timeout_cfg);
