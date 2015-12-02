@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <wordexp.h>
 
 #include "path.h"
 #include "debug.h"
@@ -40,20 +41,35 @@ enum _pflags{
 };
 
 
-static int _run_stat(const char *fname, int flag) {
+static int _run_stat(char *fname, int flag) {
     int rc = 0;
 
     // Just some shenanigans to ensure a more consistent call to stat.
     struct stat _s;
     struct stat *s = &_s;
 
-    rc = stat(fname, s);
+    // expand path names
+    char *target = NULL;
+    wordexp_t result;
+    int rv = wordexp(fname, &result, 0);
+
+    if ( !rv ) {
+        /**
+         * Comrade only really cares for HOME expansion.
+         */
+        target = result.we_wordv[0];
+    } else {
+        target = fname;
+    }
+
+    rc = stat(target, s);
     
     if(rc && flag != p_E) {
-        log_warn("%s", fname);
         // False
         return 0;
     }
+
+    wordfree(&result);
 
     switch(flag) {
         case p_IR:
@@ -73,23 +89,23 @@ static int _run_stat(const char *fname, int flag) {
 }
 
 int path_isfile(const char *fname) {
-    return _run_stat(fname, p_IR);
+    return _run_stat( (char *) fname, p_IR);
 }
 
 int path_isdir(const char *fname) {
-    return _run_stat(fname, p_ID);
+    return _run_stat( (char *) fname, p_ID);
 }
 
 int path_islink(const char *fname) {
-    return _run_stat(fname, p_IL);
+    return _run_stat( (char *) fname, p_IL);
 }
 
 int path_isfifo(const char *fname) {
-    return _run_stat(fname, p_IF);
+    return _run_stat( (char *) fname, p_IF);
 }
 
 int path_exists(const char *fname) {
-    return _run_stat(fname, p_E);
+    return _run_stat( (char *) fname, p_E);
 }
 
 

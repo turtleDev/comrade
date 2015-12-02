@@ -40,6 +40,10 @@
 
 /* TODO: include headers using windows path on windows platform */
 
+
+/**
+ * helper function used to compare json data to constant strings
+ */
 static int isequal(const char *json, jsmntok_t t, const char *s) {
    if(t.type == JSMN_STRING && (strlen(s) == (t.end - t.start)) &&
       !strncmp(json + t.start, s, t.end - t.start)) { 
@@ -48,11 +52,18 @@ static int isequal(const char *json, jsmntok_t t, const char *s) {
    return 0;
 }
 
+/**
+ * getdata() is a helper function that is used to extract data
+ * from tokens
+ */
 static char *getdata(const char *json, jsmntok_t t[], int i) {
     char *str = strndup(json + t[i+1].start,t[i+1].end - t[i+1].start);
     return str;
 }
-   
+  
+/**
+ * another helper. very similar to isalpha()
+ */
 static int is_a_number(char *str) {
     int i;
     int len = strlen(str);
@@ -67,6 +78,7 @@ static int is_a_number(char *str) {
 
     return 1;
 }
+
 
 struct Config *config_load(const char *json) {
     jsmn_parser parser;

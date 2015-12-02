@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <wordexp.h>
 
 #include <libnotify/notify.h>
 #include <glib.h>
@@ -38,41 +39,49 @@
 #include "notification_sound.h"
 #include "debug.h"
 
-static char *get_abs_path(char *file) {
-    
-    char *abspath = malloc(sizeof(char) * PATH_MAX);
-    memset(abspath, '\0', sizeof(char) * PATH_MAX);
-    realpath(file, abspath);
-    
-    if(!abspath) {
-        log_err("out of memory");
+/**
+ * get full path returns the path after 
+ * filename/shell expansions
+ */
+static char *get_full_path(char *file) {
+
+    if ( !file ) {
         return NULL;
     }
 
-    return abspath;
-    
+    char *path = NULL;
+    wordexp_t result;
+    int rv = wordexp(file, &result, 0);
+    if ( !rv ) {
+        path = strdup(result.we_wordv[0]);
+        wordfree(&result);
+    } else {
+        path = strdup(file);
+    }
+
+    return path;
+   
 }
 
 int _display_notification_linux(struct Config *cfg) {
-    int icon_exists = 1;
-    int sound_exists = 1;
+    int icon_exists = 0;
+    int sound_exists = 0;
 
-    if(cfg->icon_file && !path_isfile(cfg->icon_file)) {
-        icon_exists = 0;
+    if(cfg->icon_file && path_isfile(cfg->icon_file)) {
+        icon_exists = 1;
     }
 
-    if(cfg->sound_file && !path_isfile(cfg->sound_file)) {
-        sound_exists = 0;
+    if(cfg->sound_file && path_isfile(cfg->sound_file)) {
+        sound_exists = 1;
     }
 
-
-    char *msg = cfg->message;
-    char *title = cfg->title;
     // libnotify's icon only shows up if you tell it the absolute path to
     // to icon. It won't show other wise. It returns a freshly allocated
     // string. remember to free it afterwards.
-    char *icon = icon_exists ? get_abs_path(cfg->icon_file) : NULL;
-    char *snd = sound_exists ? cfg->sound_file : NULL;
+    char *icon = icon_exists ? get_full_path(cfg->icon_file) : NULL;
+    char *snd = sound_exists ? get_full_path(cfg->sound_file) : NULL;
+    char *title = cfg->title;
+    char *msg = cfg->message;
 
     NotifyNotification *notification = NULL;
 
@@ -104,8 +113,11 @@ int _display_notification_linux(struct Config *cfg) {
   
     // free the notifiction object
     g_object_unref(G_OBJECT(notification));
-    
+   
+    // free strings returned from get_full_path
     if(icon) free(icon);
+    if(snd) free(snd);
+
     // everything went ok. Return success
     return 0;
 }
