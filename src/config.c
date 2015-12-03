@@ -29,16 +29,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <stdint.h>
+
+#include "include/jsmn.h"
 
 #include "debug.h"
-
-#ifdef __linux__
-#include "include/jsmn.h"
-#endif
-
 #include "config.h"
 
-/* TODO: include headers using windows path on windows platform */
 
 
 /**
@@ -62,14 +59,16 @@ static char *getdata(const char *json, jsmntok_t t[], int i) {
 }
   
 /**
- * another helper. very similar to isalpha()
+ * another helper. verfies if a string can safely be
+ * converted into an int.
  */
 static int is_a_number(char *str) {
-    int i;
-    int len = strlen(str);
+    uint32_t i;
+    uint32_t len = strlen(str);
     for(i = 0; i < len; ++i) {
-        if(!isdigit(str[i])) {
-            if (str[i] == '.' || str[i] == '-'){
+        unsigned ch = str[i];
+        if(!isdigit(ch)) {
+            if (ch == '.' || ch == '-') {
                 continue;
             }
             return 0;
@@ -84,6 +83,7 @@ struct Config *config_load(const char *json) {
     jsmn_parser parser;
     jsmn_init(&parser);
     jsmntok_t *tokens = NULL;
+
     // parse the number of tokens.
     int rc = 0;
     rc = jsmn_parse(&parser, json, strlen(json), NULL, 0);

@@ -31,13 +31,18 @@
 #include <stdlib.h>
 #include <wordexp.h>
 
+#ifdef __linux
 #include <libnotify/notify.h>
 #include <glib.h>
+#endif 
 
 #include "notification.h"
 #include "path.h"
 #include "notification_sound.h"
 #include "debug.h"
+
+
+#ifdef __linux
 
 /**
  * get full path returns the path after 
@@ -62,6 +67,7 @@ static char *get_full_path(char *file) {
     return path;
    
 }
+
 
 int _display_notification_linux(struct Config *cfg) {
     int icon_exists = 0;
@@ -121,3 +127,5 @@ int _display_notification_linux(struct Config *cfg) {
     // everything went ok. Return success
     return 0;
 }
+
+#endif

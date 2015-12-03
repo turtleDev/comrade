@@ -8,14 +8,14 @@ all: libjsmn.a $(OBJS)
 	$(CC) $(CFLAGS_M) $(OBJS)  main.c  -o _comrade $(LIBS_M) 
 
 clean:
-	rm -i -f comrade 
+	rm -i -f _comrade 
 	rm -i -f *.o
-	@cd ../lib/jsmn && make clean
+	@cd ../lib/jsmn && $(MAKE) clean
 
-.PHONY: all clean
+.PHONY: clean
 
 libjsmn.a: 
-	@cd ../lib/jsmn/ && make
+	@cd ../lib/jsmn/ && $(MAKE)
 
 notification.o:
 	$(CC) $(CFLAGS_M) notification.c -c -o notification.o
