@@ -41,6 +41,7 @@
 /**
  * helper function used to compare json data to constant strings
  */
+ // *** why not skip the if statement
 static int isequal(const char *json, jsmntok_t t, const char *s) {
    if(t.type == JSMN_STRING && (strlen(s) == (t.end - t.start)) &&
       !strncmp(json + t.start, s, t.end - t.start)) { 
@@ -62,6 +63,8 @@ static char *getdata(const char *json, jsmntok_t t[], int i) {
  * another helper. verfies if a string can safely be
  * converted into an int.
  */
+// *** Use strtol() and avoid the necessity for this function 
+// Avoid using atoi() 
 static int is_a_number(char *str) {
     uint32_t i;
     uint32_t len = strlen(str);
@@ -116,7 +119,7 @@ struct Config *config_load(const char *json) {
         return NULL;
     }
  
-
+    
     struct Config *cfg = malloc(sizeof(struct Config));
 
     if(!cfg) {
@@ -127,6 +130,7 @@ struct Config *config_load(const char *json) {
     // set everythin to \0 (null). This makes it safe to 
     // free this structure anytime, without worrying about whether
     // the fields(char *ptrs) were properly initialized or not.
+    // ***use calloc()
     memset(cfg, '\0', sizeof(struct Config));
 
   
@@ -135,6 +139,9 @@ struct Config *config_load(const char *json) {
     int len = tokens[0].size * 2;
     // I start the index from one, since the index 0 is the toplevel object
     int i;
+    
+    // *** This sort of repetitive code is ideally replaced by a macro
+    // *** It makes it compact and avoids copy/paste errors
     for(i = 1; i < len; ++i) {
         if(isequal(json, tokens[i], "title")) {
             // copy the data.

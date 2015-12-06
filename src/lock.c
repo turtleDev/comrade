@@ -89,7 +89,7 @@ int _lock_acquire_linux(char *program_name) {
                 strlen(base) +
                 strlen(user) +
                 strlen(".lock") +
-                5; // Just as a precaution;
+                5; // Just as a precaution; *** Why precaution?
 
     linux_lockfile = malloc(sizeof(char) * count);
     check(linux_lockfile, "Out of memory");

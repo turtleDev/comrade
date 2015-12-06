@@ -35,6 +35,10 @@
 int _ping_linux(const char *addr, int count) {
 
     // 32 bytes are extra padding, just in case.
+    // 32 bytes are never enough - your program must 
+    // not crash by user input
+    // VEry easy to turn this into an exploit just by 
+    // passing the right bytes via the command line
     int len = strlen(addr) + strlen("ping ") + 32;
     char *cmd = malloc(sizeof(char) * len);
 

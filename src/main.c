@@ -26,6 +26,72 @@
  *
  */
 
+/* ***
+Altogether it's not very bad code for a beginner 
+Style is readable, comments are useful
+
+Suggestion #1:
+--------------
+The main problem with this code is endemic to C in general - you keep 
+checking for errors after every operation, especially malloc()
+Also, you write sizeof(char) everywhere, which is very much a good practice
+but it bloats up the code...
+
+The solution is to write a wrapper to malloc (or rather calloc) that takes 
+the size in bytes and calls abort() after printing an error message. 
+There is no point in continuing execution if malloc() fails. 
+There is nothing you can do except exit fatally.
+There is no need to clean up before abort() is called either.
+It is a fatal error.
+
+Also, make a version of your check macro that does this abort() stuff
+Whenever there is a condition which is abnormal simply fail.
+Fail early, fail often. 
+
+Suggestion #2:
+--------------
+str*() functions are notoriously dangerous - they introduce bugs and 
+potential exploits. Try to find the basic operations you are doing, like
+concatenation and write a robust wrapper around that.
+
+Suggestion #2a:
+--------------
+Perhaps it would be a good idea to use a C string replacement like
+bstring, which manages allocation automatically, and provides fancy functions
+like split/join etc. that you find in high level languages
+
+Suggestion #3:
+--------------
+If you see the same pattern of code twice, it means you typed too much.
+In C it is hard to compose your code for reusability, but once again macros 
+come to the rescue
+Even something like 
+#define FOR(i, n) for(int i=0; i < n; ++i)
+reduces bugs a lot, because there is so much lesser to type
+Wherever code repeats either make it a function, or make it a macro, there
+are many instances in your code
+
+Suggestion #4:
+--------------
+Don't reinvent wheels
+In C the best way to code is to glue together good libraries.
+You already did that, but always check if there is a library function that 
+does what you need, for example you failed to use stat() for filesize,
+fread() to read a file and strrchr() to scan a string for a character
+
+Suggestion #5:
+--------------
+JSON seems overkill for this - Just use a plain text file with lines containing 
+Key=Value 
+
+
+Suggestion #X:
+--------------
+Use C++, a lot of this pain goes away forever
+
+*/
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -103,6 +169,8 @@ Note: Comrade will try to load a file called        \n\
 
 char *read_file(FILE *f) {
     int count = 0;
+    
+    /* Why scan a file linearly to get size? Use stat() */
     while(fgetc(f) != EOF) ++count;
     rewind(f);
     
@@ -110,10 +178,14 @@ char *read_file(FILE *f) {
     if(!str) {
         return NULL;
     }
+    
+    /* Use calloc() instead of malloc()/memset() */
     memset(str, '\0', sizeof(char) * (count+1));
     char ch;
     int i;
 
+    /* *** Since you write every byte in the buffer, there was no point in zeroing the memory */
+    /* Also, why read byte by byte? use fread() instead */
     for(i = 0; i < count; ++i) {
         ch = fgetc(f);
         if(ch == EOF) {
@@ -280,6 +352,8 @@ int main(int argc, char *argv[]) {
      * TODO: replace the following block of code with a version 
      *       that uses getopt_long instead.
      */
+     
+    /* *** Macroize the options code, or make it a function by refactoring the logic */ 
     for(i = 1; i < argc; ++i) {
         if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
             if(argv[i+1] != NULL) {

@@ -50,6 +50,8 @@
 
 bool has_extension(const char *filename, char *ext) {
     int index;
+    
+    // There is a library function for this called strrchr()
     for ( index = strlen(filename) -1; index > 0; --index ) {
         if ( filename[index] == '.' ) {
             /**
@@ -70,11 +72,23 @@ bool has_extension(const char *filename, char *ext) {
      * the same as the filename extension, then return
      * true, else false.
      */
+    // It is idiomatic in C to directly use boolean expressions
+    // true and false are not standard C 
+    // Nor are this sort of comment for that matter!
+    // In any case, just 
+    // return index && !strcmp(file_ext, ext);
+    // Is a more clear way of expressing the code
+    // Unlike python, implicit is preferred in C over explicit  
+     
     if ( index != 0 && !strcmp(file_ext, ext)) {
         return true;
     } else {
         return false;
     }
+    
+    // Ultimately instead of this complicated approach, why not just compare strlen(ext) bytes
+    // from the end of filename against ext and also that the byte before that is a'.'
+    // Just one strlen, one strcmp and some checks to ensure filename is longer than ext
 }
    
 /**
