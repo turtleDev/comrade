@@ -407,16 +407,19 @@ int main(int argc, char *argv[]) {
 
 
     int rc;
-    time_t start_time = time(NULL);
     int attempts = 1;
     struct Config *timeout_cfg = NULL;
-    time_t diff;
+
+    time_t start_time = time(NULL);
+    time_t diff = 0;
+
     while(1) {
+
         // if the time since start exceeds the timeout duration(in minutes),
         // then log and exit.
         diff = difftime(time(NULL), start_time);
+
         if((cfg->timeout != -1) && diff > (cfg->timeout *60)) {
-           
 
             // allocate space for our msg. +16 is padding for
             // any printf style text substitution. This is just a safety 
@@ -424,15 +427,15 @@ int main(int argc, char *argv[]) {
             char *msg = malloc(sizeof(char) * (strlen(MSG_TIMEOUT) + 16));
 
             // convert diff to minutes
-            diff = diff/60;
-            sprintf(msg, MSG_TIMEOUT, diff, attempts);
+            double diff_minutes = diff/60;
+            sprintf(msg, MSG_TIMEOUT, diff_minutes, attempts);
             
             timeout_cfg = config_load(msg);
             
             if(!timeout_cfg || display_notification(timeout_cfg)) {
                 fprintf(stderr,
                         "timed out after %.2f minutes and %d failed attempts\n",
-                        (double)diff, attempts); 
+                            diff_minutes, attempts); 
             }
             free(msg);
             config_cleanup(timeout_cfg);
