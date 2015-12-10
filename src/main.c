@@ -166,35 +166,39 @@ Note: Comrade will try to load a file called        \n\
  * The array is allocated from heap, so remember to free it.
  * returns NULL on error.
  */
+char *read_file(const char *file) 
+{
 
-char *read_file(FILE *f) {
-    int count = 0;
-    
-    /* Why scan a file linearly to get size? Use stat() */
-    while(fgetc(f) != EOF) ++count;
-    rewind(f);
-    
-    char *str = malloc(sizeof(char) * (count+1));
-    if(!str) {
+    // find the file size
+    struct stat st;
+    int rv;
+    rv = stat(file, &st);
+    if ( rv != 0 ) {
+        log_err("stat failed on file %s", file);
         return NULL;
     }
-    
-    /* Use calloc() instead of malloc()/memset() */
-    memset(str, '\0', sizeof(char) * (count+1));
-    char ch;
-    int i;
+    int size = st.st_size;
 
-    /* *** Since you write every byte in the buffer, there was no point in zeroing the memory */
-    /* Also, why read byte by byte? use fread() instead */
-    for(i = 0; i < count; ++i) {
-        ch = fgetc(f);
-        if(ch == EOF) {
-            str[i] = '\0';
-            break;
-        }
-        str[i] = ch;
+    FILE *f = fopen(file, "r");
+    if ( f == NULL ) {
+        log_err("unable to open file: %s", file);
+        return NULL;
     }
-    return str;
+
+    char *buffer = malloc(sizeof(char) * (size+1));
+
+    if ( buffer == NULL ) {
+        exit(-1);
+        fprintf(stderr, "out of memory\n");
+    }
+
+    fread(buffer, sizeof(char), size, f);
+
+    fclose(f);
+
+    buffer[size] = '\0';
+
+    return buffer;
 }
 
 
@@ -304,22 +308,15 @@ int main(int argc, char *argv[]) {
     }
 
     char *config_file = get_config_path();
-    FILE *f;
     struct Config *cfg = NULL;
 
-    f = fopen(config_file, "r+");
-    
-    // if we're unable to open the configuration file.
-    if(!f) {
+    if(!path_isfile(config_file)) {
         log_err("unable to open the file: %s", config_file);
         errno = 0;
     } else {
-        char *config_string = read_file(f);
+        char *config_string = read_file(config_file);
         cfg = config_load(config_string);
 
-        // free up the resources that we no longer need
-        fclose(f);
-        
         // unable to parse configuration string.
         if(!cfg) {
             log_warn("unable to parse configuration file: %s", config_file);
