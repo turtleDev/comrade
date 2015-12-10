@@ -109,31 +109,35 @@ Use C++, a lot of this pain goes away forever
 #include "path.h"
 
 
-const char *DEFAULT_CONFIG = \
-"{ \"title\": \"Comrade\", \
-   \"message\": \"your internet is now working\", \
-   \"address\": 127.0.0.1, \
-   \"ping_count\": 4 , \
-   \"timeout\": 5, \
-   \"urgency\": 2 }";    
+const char *DEFAULT_CONFIG = "\
+title=Comrade \n\
+message=your internet is now working \n\
+address=127.0.0 \n\
+ping_count=4 \n\
+timeout=5 \n\
+urgency=2\
+";    
 
 /**
  * urgency should be in the range 0-2,
  * where 0 is the lowest urgency, and 2
  * is the highest.
  */
-const char *MSG_START = \
-"{ \"title\":\"Comrade\", \
-   \"message\": \"starting up\", \
-   \"urgency\": 0 }";  
+const char *MSG_START = "\
+title=Comrade\n\
+message=starting up\n\
+urgency=0\
+";
 
-const char *MSG_ANOTHER_INSTANCE = \
-"{ \"title\": \"Comrade\", \
-   \"message\":\"Another instance is already running\" }";
+const char *MSG_ANOTHER_INSTANCE = "\
+title=Comrade \n\
+message=Another instance is already running\
+";
 
-const char *MSG_TIMEOUT = \
-"{ \"title\":\"Comrade\", \
-   \"message\":\"Timed out after %.2f minutes and %d failed attempts\"}";
+const char *MSG_TIMEOUT = "\
+title=Comrade \n\
+message=Timed out after %.2f minutes and %d failed attempts\
+";
 
 const char *USAGE = "\
 Comrade: Know when your internet is up              \n\
@@ -248,27 +252,27 @@ char *get_config_path(void) {
             }
 
             // now create the final path to config.json
-            len = strlen(path) + strlen("/config.json") + 1;
+            len = strlen(path) + strlen("/comraderc") + 1;
             check(
                 (path = realloc(path, sizeof(char) * len)) != NULL,
                 "out of memory"
             );
 
-            strcat(path, "/config.json");
+            strcat(path, "/comraderc");
 
             return path;
 
         } else {
             
             // $HOME/.local does not exist. so we're going 
-            // to use $HOME/.comrade.json instead
+            // to use $HOME/.comraderc instead
             free(path);
 
-            len = strlen(home) + strlen("/.comrade.json") + 1;
+            len = strlen(home) + strlen("/.comraderc") + 1;
             path = malloc(sizeof(char) * len);
             check(path != NULL, "out of memory");
             
-            sprintf(path, "%s/%s", home, ".comrade.json");
+            sprintf(path, "%s/%s", home, ".comraderc");
 
             return path;
         }

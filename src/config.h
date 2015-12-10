@@ -40,7 +40,7 @@ struct Config {
 };
 
 
-struct Config * config_load(const char *json);
+struct Config * config_load(const char *cfg_string);
 
 void config_cleanup(struct Config *cfg);
 
