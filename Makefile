@@ -1,5 +1,5 @@
 all:
-	cd src && make 
+	cd src && $(MAKE)
 	@if [ -e src/_comrade ];then \
 		if [ ! -d bin ]; then \
 		mkdir bin; \
@@ -14,7 +14,7 @@ clean:
 		rm bin -rf; \
 		echo rm bin -rf; \
 	fi
-	@cd src && make clean
+	@cd src && $(MAKE) clean
 
 install:
 	cp bin/comrade /usr/local/bin/comrade

@@ -26,71 +26,6 @@
  *
  */
 
-/* ***
-Altogether it's not very bad code for a beginner 
-Style is readable, comments are useful
-
-Suggestion #1:
---------------
-The main problem with this code is endemic to C in general - you keep 
-checking for errors after every operation, especially malloc()
-Also, you write sizeof(char) everywhere, which is very much a good practice
-but it bloats up the code...
-
-The solution is to write a wrapper to malloc (or rather calloc) that takes 
-the size in bytes and calls abort() after printing an error message. 
-There is no point in continuing execution if malloc() fails. 
-There is nothing you can do except exit fatally.
-There is no need to clean up before abort() is called either.
-It is a fatal error.
-
-Also, make a version of your check macro that does this abort() stuff
-Whenever there is a condition which is abnormal simply fail.
-Fail early, fail often. 
-
-Suggestion #2:
---------------
-str*() functions are notoriously dangerous - they introduce bugs and 
-potential exploits. Try to find the basic operations you are doing, like
-concatenation and write a robust wrapper around that.
-
-Suggestion #2a:
---------------
-Perhaps it would be a good idea to use a C string replacement like
-bstring, which manages allocation automatically, and provides fancy functions
-like split/join etc. that you find in high level languages
-
-Suggestion #3:
---------------
-If you see the same pattern of code twice, it means you typed too much.
-In C it is hard to compose your code for reusability, but once again macros 
-come to the rescue
-Even something like 
-#define FOR(i, n) for(int i=0; i < n; ++i)
-reduces bugs a lot, because there is so much lesser to type
-Wherever code repeats either make it a function, or make it a macro, there
-are many instances in your code
-
-Suggestion #4:
---------------
-Don't reinvent wheels
-In C the best way to code is to glue together good libraries.
-You already did that, but always check if there is a library function that 
-does what you need, for example you failed to use stat() for filesize,
-fread() to read a file and strrchr() to scan a string for a character
-
-Suggestion #5:
---------------
-JSON seems overkill for this - Just use a plain text file with lines containing 
-Key=Value 
-
-
-Suggestion #X:
---------------
-Use C++, a lot of this pain goes away forever
-
-*/
-
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -112,7 +47,7 @@ Use C++, a lot of this pain goes away forever
 const char *DEFAULT_CONFIG = "\
 title=Comrade \n\
 message=your internet is now working \n\
-address=127.0.0 \n\
+address=127.0.0.1 \n\
 ping_count=4 \n\
 timeout=5 \n\
 urgency=2\
@@ -125,7 +60,7 @@ urgency=2\
  */
 const char *MSG_START = "\
 title=Comrade\n\
-message=starting up\n\
+message=Starting up\n\
 urgency=0\
 ";
 
@@ -151,10 +86,11 @@ options:                                            \n\
         -t, --timeout m: timeout after m minutes    \n\
                                                     \n\
 Note: Comrade will try to load a file called        \n\
-      'config.json', from the directory where the   \n\
-      executable is present to configure itself.    \n\
+      'comraderc', from either {HOME}/.local/Comrade\n\
+      (if {HOME}/.local exists) or from {HOME}      \n\
+      to configure itself                           \n\
       If it is unable to load that file, then it    \n\
-      will use a default configuration that is      \n\
+      will use the default configuration that is    \n\
       built into it. If any command line option     \n\
       is passed to Comrade, then such option will   \n\
       overide that particular part of Comrade's     \n\
@@ -251,7 +187,7 @@ char *get_config_path(void) {
                 );
             }
 
-            // now create the final path to config.json
+            // now create the final path to config file
             len = strlen(path) + strlen("/comraderc") + 1;
             check(
                 (path = realloc(path, sizeof(char) * len)) != NULL,
