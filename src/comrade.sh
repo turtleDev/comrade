@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -e ./_comrade ]; then
-    ./_comrade & 
+    ./_comrade & 2> /dev/null
 else
-    _comrade & 
+    _comrade & 2> /dev/null
 fi
