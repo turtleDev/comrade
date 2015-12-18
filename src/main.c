@@ -51,7 +51,7 @@ address=127.0.0.1 \n\
 ping_count=4 \n\
 timeout=5 \n\
 urgency=2\
-";    
+";
 
 /**
  * urgency should be in the range 0-2,
@@ -106,7 +106,7 @@ Note: Comrade will try to load a file called        \n\
  * The array is allocated from heap, so remember to free it.
  * returns NULL on error.
  */
-char *read_file(const char *file) 
+char *read_file(const char *file)
 {
 
     // find the file size
@@ -154,7 +154,7 @@ void replace_str(char *src, char *dest) {
 
 
 /**
- * get_config_path() returns the path to the 
+ * get_config_path() returns the path to the
  * configuration file config.json.
  */
 char *get_config_path(void) {
@@ -177,7 +177,7 @@ char *get_config_path(void) {
                 (path = realloc(path, sizeof(char) * len)) != NULL,
                 "out of memory"
             );
-    
+
             strcat(path, "/Comrade");
 
             // check for its existance
@@ -199,15 +199,15 @@ char *get_config_path(void) {
             return path;
 
         } else {
-            
-            // $HOME/.local does not exist. so we're going 
+
+            // $HOME/.local does not exist. so we're going
             // to use $HOME/.comraderc instead
             free(path);
 
             len = strlen(home) + strlen("/.comraderc") + 1;
             path = malloc(sizeof(char) * len);
             check(path != NULL, "out of memory");
-            
+
             sprintf(path, "%s/%s", home, ".comraderc");
 
             return path;
@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
         // if we're unable to acquire lock
         struct Config *cfg;
         cfg = config_load(MSG_ANOTHER_INSTANCE);
-        
+
         // if we're unable to parse config string for some reason or
         // in case display_notification fails, log the message.
         if(!cfg || display_notification(cfg)) {
@@ -269,7 +269,7 @@ int main(int argc, char *argv[]) {
     if(!cfg) {
         // load default config
         cfg = config_load(DEFAULT_CONFIG);
-        
+
         // write the default configuration to disk.
         if (config_file) {
             FILE *cf = NULL;
@@ -281,16 +281,16 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-  
+
     // free out the strings that we no longer need
     free(config_file);
-    
+
     /**
-     * TODO: replace the following block of code with a version 
+     * TODO: replace the following block of code with a version
      *       that uses getopt_long instead.
      */
-     
-    /* *** Macroize the options code, or make it a function by refactoring the logic */ 
+
+    /* *** Macroize the options code, or make it a function by refactoring the logic */
     for(i = 1; i < argc; ++i) {
         if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
             if(argv[i+1] != NULL) {
@@ -359,26 +359,26 @@ int main(int argc, char *argv[]) {
         if((cfg->timeout != -1) && diff > (cfg->timeout *60)) {
 
             // allocate space for our msg. +16 is padding for
-            // any printf style text substitution. This is just a safety 
+            // any printf style text substitution. This is just a safety
             // measure.
             char *msg = malloc(sizeof(char) * (strlen(MSG_TIMEOUT) + 16));
 
             // convert diff to minutes
             double diff_minutes = diff/60;
             sprintf(msg, MSG_TIMEOUT, diff_minutes, attempts);
-            
+
             timeout_cfg = config_load(msg);
-            
+
             if(!timeout_cfg || display_notification(timeout_cfg)) {
                 fprintf(stderr,
                         "timed out after %.2f minutes and %d failed attempts\n",
-                            diff_minutes, attempts); 
+                            diff_minutes, attempts);
             }
             free(msg);
             config_cleanup(timeout_cfg);
             break;
         }
-        
+
         rc = ping(cfg->address, cfg->ping_count);
 
         if( rc == 0 ) {
