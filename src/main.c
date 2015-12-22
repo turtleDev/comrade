@@ -26,16 +26,25 @@
  *
  */
 
-
+/* standard library headers */
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
 
+/* OS specific headers */
+#ifdef __linux__
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif /* end __linux__ */
 
+#ifdef _WIN32
+#include <windows.h>
+#include <Shlwapi.h> /* for SHGetValue */
+#endif /* end _WIN32 */
+
+/* project headers */
 #include "debug.h"
 #include "config.h"
 #include "notification.h"
@@ -155,9 +164,15 @@ void replace_str(char *src, char *dest) {
 
 /**
  * get_config_path() returns the path to the
- * configuration file config.json.
+ * configuration file comraderc
  */
 char *get_config_path(void) {
+    /**
+     * on linux, we will store rc files as either $HOME/.comraderc or
+     * $HOME/.local/Comrade/comraderc, depending on whether
+     * $HOME/.local is available or not
+     */
+#ifdef __linux__
     char *home = getenv("HOME");
     char *path = NULL;
 
@@ -221,6 +236,89 @@ char *get_config_path(void) {
 error:
     if (path) free(path);
     return NULL;
+
+#endif /* end __linux__ */
+
+#ifdef _WIN32
+    /**
+     * On windows, we will store comrade's configuration files in 
+     * <My Documents>/Comrade/comraderc
+     */
+
+    /* TODO: use window's unicode path API to allow for longer path names */
+    char buffer[MAX_PATH];
+    DWORD length = MAX_PATH -1;
+    DWORD type=0;
+    
+    // return value(s)
+    DWORD rv;
+
+    /**
+     * <My Documents> is a special folder on windows. On newer system it's
+     * generally C:\Users\<USER>\Documents, but it can be configured to
+     * be some other folder. We're going to use registry to find out where
+     * this folder is. To do this, we're going to have to read the 
+     * "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\
+     *  Explorer\User Shell Folders" key's value called "Personal".
+     */
+
+    /* SHGetValueA, ANSI version of SHGetValue */
+    rv = SHGetValueA(HKEY_CURRENT_USER,
+                         "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders",
+                         "Personal",
+                         &type,
+                         buffer,
+                         &length);
+
+    /* some error occured */
+    check( rv == ERROR_SUCCESS, "unable to read registry");
+
+
+    /**
+     * expand any environment variables in the returned path
+     *
+     * NOTE: according to the documentation at msdn on 
+     * ExpandEnvironmentString, the expanded strings are limited to 32k
+     * characters. However, I'm only going to keep a buffer PATH_MAX long,
+     * since that should suffice 95% of the times. However, It would be 
+     * nice if in the future, this function could also handle any possible
+     * edge cases.
+     */
+    char expanded_buffer[PATH_MAX];
+
+    /**
+     * ExpandEnvironmentStringsA, the ANSI version
+     * of ExpandEnvironmentStrings.
+     */
+    rv = ExpandEnvironmentStringsA(buffer, expanded_buffer, MAX_PATH -1);
+
+    check( rv != 0, "unable to read environment variables");
+
+    char config_folder[MAX_PATH];
+    sprintf(config_folder, "%s\\%s", expanded_buffer, "Comrade");
+
+    if ( !path_isdir(config_folder) ) {
+        /* try creating the directory */
+        rv = CreateDirectoryA(config_folder, NULL);
+        
+        /* check if it worked */
+        check ( rv != ERROR_PATH_NOT_FOUND , 
+                "unable to create %s",
+                config_folder );
+    }
+
+    char *path = (char *)malloc(sizeof(char) * MAX_PATH);
+
+    check(path != NULL, "out of memory");
+    
+    /* build the final path string to <My Documents>/Comrade/comraderc */
+    sprintf(path, "%s\\%s", config_folder, "comraderc");
+
+    return path;
+
+error:
+    return NULL;
+#endif /* end __WIN32 */
 }
 
 int main(int argc, char *argv[]) {
@@ -290,7 +388,6 @@ int main(int argc, char *argv[]) {
      *       that uses getopt_long instead.
      */
 
-    /* *** Macroize the options code, or make it a function by refactoring the logic */
     for(i = 1; i < argc; ++i) {
         if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
             if(argv[i+1] != NULL) {
