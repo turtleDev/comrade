@@ -56,7 +56,7 @@
 const char *DEFAULT_CONFIG = "\
 title=Comrade \n\
 message=your internet is now working \n\
-address=127.0.0.1 \n\
+address=www.example.com\n\
 ping_count=4 \n\
 timeout=5 \n\
 urgency=2\
