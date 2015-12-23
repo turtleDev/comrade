@@ -300,11 +300,12 @@ error:
     if ( !path_isdir(config_folder) ) {
         /* try creating the directory */
         rv = CreateDirectoryA(config_folder, NULL);
-        
-        /* check if it worked */
-        check ( rv != ERROR_PATH_NOT_FOUND , 
-                "unable to create %s",
-                config_folder );
+
+        /* create directory failed */
+        if ( rv == 0 ) {
+            log_err("unable to create %s", config_folder);
+            return NULL;
+        }
     }
 
     char *path = (char *)malloc(sizeof(char) * MAX_PATH);
