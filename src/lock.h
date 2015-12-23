@@ -27,15 +27,33 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
-//  --- Linux specific locks ---
+
+/* forward declarations */
+#ifdef __linux__
+
 int _lock_acquire_linux(char *program_name);
 int _lock_release_linux(void);
 
+#elif _WIN32
+
+int _lock_acquire_win(char *program_name);
+int _lock_release_win();
+
+#endif
+
+/* helper macros */
 #ifdef __linux__
- 
-#define lock_acquire(f) _lock_acquire_linux(f)
+
+#define lock_acquire(program_name) _lock_acquire_linux(program_name)
 #define lock_release() _lock_release_linux()
 
 #endif
 
+#ifdef _WIN32
+
+#define lock_acquire(program_name) _lock_acquire_win(program_name)
+#define lock_release() _lock_release_win()
+
 #endif
+
+#endif /* end __LOCK__H */

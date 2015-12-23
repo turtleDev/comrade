@@ -26,16 +26,23 @@
 
 
 #include <stdio.h>
-#include <sys/file.h>
 #include <string.h>
 #include <stdlib.h>
+
+#ifdef __linux__
+#include <sys/file.h>
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include "debug.h"
 #include "path.h"
 
 
 /**
- * basename_custom returns the index after the last
+ * basename_offset returns the index after the last
  * '/' in a string, or 0 if there weren't any. 
  * This is useful to determine the basename
  * ( that is, files name) is an absolute path
@@ -51,19 +58,39 @@
 static int basename_offset(char *string)
 {
     int i;
+    char target = '\0';
+
+#if defined(__linux__)
+    target = '/';
+#elif defined(_WIN32)
+    target = '\\';
+#endif
+
     for (i = strlen(string)-1; i > 0; --i) {
-        if ( string[i] == '/' ) {
+        if ( string[i] == target ) {
             return i+1;
         }
     }
     return i;
 }
 
-// --- Linux Specific Locking ---
+/* Linux Specific Locking */
 
+#ifdef __linux__
 static FILE *lf = NULL;
 static char *linux_lockfile = NULL;
 
+/**
+ * _lock_acquire_linux() acquires an advisory lock on a file
+ * by the name PROGRAMNAME-USERNAME.lock in the /tmp directory.
+ * 
+ * You can use this function to ensure that only one instance of
+ * a program runs per user. 
+ *
+ * @param program_name name of the program ( argv[0] )
+ * 
+ * @returns 0 for success, -1 for error (may set errno).
+ */
 int _lock_acquire_linux(char *program_name) {
 
     char *tmp_dir = NULL;
@@ -73,8 +100,6 @@ int _lock_acquire_linux(char *program_name) {
     char *base = program_name + basename_offset(program_name);
     
     if(P_tmpdir) {
-        tmp_dir = strdup(P_tmpdir);
-    } else {
         tmp_dir = strdup("/tmp");
     }
 
@@ -89,7 +114,7 @@ int _lock_acquire_linux(char *program_name) {
                 strlen(base) +
                 strlen(user) +
                 strlen(".lock") +
-                5; // Just as a precaution; *** Why precaution?
+                5; // Just as a precaution; 
 
     linux_lockfile = malloc(sizeof(char) * count);
     check(linux_lockfile, "Out of memory");
@@ -115,6 +140,12 @@ error:
     return -1;
 }
 
+/**
+ * _lock_release_linux(void) release the advisory lock acquired by
+ * _lock_acquire_linux().
+ *
+ * @returns 0 for success, -1 for error.
+ */
 int _lock_release_linux(void) {
     int rc = flock(fileno(lf), LOCK_UN);
     fclose(lf);
@@ -125,3 +156,46 @@ int _lock_release_linux(void) {
     linux_lockfile = NULL;
     return rc;
 }
+
+#endif /* end __linux__ */
+
+/* windows specific locking  */
+#ifdef _WIN32
+
+HANDLE mutex_obj;
+
+int _lock_acquire_win(char *program_name) {
+    char *user = getenv("USERNAME");
+    char *base_name = program_name + basename_offset(program_name);
+    /**
+     * compute length required for the string 
+     * PROGRAMNAME-USERNAME + the null terminating
+     * byte
+     */
+    int len = strlen(user) + strlen(base_name) + 2;
+
+    
+    char mutex_name[len];
+    sprintf(mutex_name, "%s-%s",base_name, user);
+
+    /* try acquring the lock */
+    mutex_obj = CreateMutexA(
+                       NULL,      /* default security settings */
+                       TRUE,      /* acquire lock on this object */
+                       mutex_name /* name of the mutex */
+                   );
+
+    if ( !mutex_obj ||
+         GetLastError() == ERROR_ALREADY_EXISTS || 
+         GetLastError() == ERROR_ACCESS_DENIED ) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+int _lock_release_win(void) {
+    return ReleaseMutex(mutex_obj);
+}
+
+#endif /* end _WIN32 */

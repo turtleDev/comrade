@@ -23,14 +23,73 @@
  *      path.h - Python like path utilities for POSIX complaint systems
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
+
+/* platform specific headers */
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#ifdef __linux__
+
 #include <wordexp.h>
+
+#endif /* end __linux__ */
+
 
 #include "path.h"
 #include "debug.h"
+
+
+#ifdef _WIN32
+
+/**
+ * This function issues a warning when a non-supported feature is
+ * queried. The call itself succeeds, but this might result in bugs
+ * if the caller does not know about it.
+ * in the future, I might change it to crash the application when
+ * a non supported feature is requested.
+ */
+static int _warn_not_supported(char *feature, int n) {
+	log_warn("%s is not supported on Microsoft Windows", feature);
+	return n;
+}
+
+/**
+ * stat on windows cannot determine whether a file a link
+ * or not. This a dummy macro that make porting code a litte
+ * easier from linux to windows. 
+ *
+ * However, see the note on _warn_not_supported() 
+ */
+#define S_ISLNK(n) (_warn_not_supported("path_islink()", n))
+
+#endif 
+
+/**
+ *  ghost macro 
+ *
+ *  The following codoe was originally used back when comrade was being 
+ *  developed using Visual Studio. It's useless now since
+ *  mingw has the proper definitions for stat and its
+ *  macros.
+ */
+#ifdef VC_LEGACY
+
+/* the struct stat*/
+#define stat _stat
+
+/* the function stat */
+#define stat(f, st) _stat(f, st)
+
+/* helper macros */
+#define S_ISREG(n) (_S_IFREG & n)
+#define S_ISDIR(n) (_S_IFDIR & n)
+#define S_ISFIFO(n) (_S_IFIFO & n)
+
+#endif /* end _WIN32 */
+
 
 enum _pflags{
     p_IR,   // Regular File
@@ -48,8 +107,7 @@ static int _run_stat(char *fname, int flag) {
     struct stat _s;
     struct stat *s = &_s;
 
-    // expand path names
-    char *target = NULL;
+#ifdef __linux__
     wordexp_t result;
     int rv = wordexp(fname, &result, 0);
 
@@ -57,19 +115,27 @@ static int _run_stat(char *fname, int flag) {
         /**
          * Comrade only really cares for HOME expansion.
          */
-        target = result.we_wordv[0];
-    } else {
-        target = fname;
+        fname = result.we_wordv[0];
     }
 
-    rc = stat(target, s);
+#endif /* end __linux__ */
+
+    rc = stat(fname, s);
+
+#ifdef __linux__
+    /**
+     * now that we have no use for the file path,
+     * we can free this struct
+     */
+    wordfree(&result);
+#endif /* end __linux__ */
+
     
     if(rc && flag != p_E) {
         // False
         return 0;
     }
 
-    wordfree(&result);
 
     switch(flag) {
         case p_IR:
