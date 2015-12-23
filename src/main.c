@@ -322,7 +322,25 @@ error:
 #endif /* end __WIN32 */
 }
 
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, 
+                    HINSTANCE hPrevInstance, 
+                    LPSTR lpCmdLine, 
+                    int nCmdShow) {
+    
+    int argc;
+    char **argv;
+    char **environ;
+
+    __getmainargs(&argc, &argv &environ);
+
+#endif /* end _WIN32 */
+
+#ifdef __linux__
+
 int main(int argc, char *argv[]) {
+
+#endif
 
     int i;
     for(i = 1 ; i < argc; ++i) {
