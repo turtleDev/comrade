@@ -1,6 +1,8 @@
-#include "../src/notification_sound.h"
 #include <stdio.h>
+
+#include "../src/notification_sound.h"
 #include "../src/debug.h"
+
 int main() {
     char *f = "test.wav";
     
