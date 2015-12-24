@@ -27,33 +27,25 @@
 #ifndef __LOCK_H
 #define __LOCK_H
 
+/**
+ * lock_acquire() acquires lock on a user local
+ * resource. This call ensures that only one instance
+ * of a program runs per user. 
+ *
+ * Do not call this more than once per program.
+ *
+ * @param program_name name of the program
+ *
+ * @returns 0 for success, -1 for error (may set errno)
+ */
+int lock_acquire(char *program_name);
 
-/* forward declarations */
-#ifdef __linux__
-
-int _lock_acquire_linux(char *program_name);
-int _lock_release_linux(void);
-
-#elif _WIN32
-
-int _lock_acquire_win(char *program_name);
-int _lock_release_win();
-
-#endif
-
-/* helper macros */
-#ifdef __linux__
-
-#define lock_acquire(program_name) _lock_acquire_linux(program_name)
-#define lock_release() _lock_release_linux()
-
-#endif
-
-#ifdef _WIN32
-
-#define lock_acquire(program_name) _lock_acquire_win(program_name)
-#define lock_release() _lock_release_win()
-
-#endif
+/**
+ * lock_release() releases the resource lock acquired by
+ * lock_acquire(). 
+ *
+ * @returns 0 for success, and -1 for failure.
+ */
+int lock_release(void);
 
 #endif /* end __LOCK__H */

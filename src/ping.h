@@ -29,10 +29,18 @@
 #ifndef __PING_H
 #define __PING_H
 
-int _ping_linux(const char *addr, int count);
+/**
+ * ping() uses the underlying ping command to ping
+ * a website. The return value is the return value
+ * of the ping command
+ *
+ * @param addr address to ping
+ * @param count number of ping count
+ *
+ * @returns return value of ping command
+ */
+int ping(const char *addr, int count);
 
-#ifdef __linux__
-#define ping(addr, count) _ping_linux(addr, count)
 #endif
 
 #endif

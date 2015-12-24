@@ -166,13 +166,15 @@ void replace_str(char *src, char *dest) {
  * get_config_path() returns the path to the
  * configuration file comraderc
  */
+
+#if  defined(__linux__)
+/**
+ * on linux, we will store rc files as either $HOME/.comraderc or
+ * $HOME/.local/Comrade/comraderc, depending on whether
+ * $HOME/.local is available or not
+ */
 char *get_config_path(void) {
-    /**
-     * on linux, we will store rc files as either $HOME/.comraderc or
-     * $HOME/.local/Comrade/comraderc, depending on whether
-     * $HOME/.local is available or not
-     */
-#ifdef __linux__
+    
     char *home = getenv("HOME");
     char *path = NULL;
 
@@ -236,15 +238,16 @@ char *get_config_path(void) {
 error:
     if (path) free(path);
     return NULL;
+}
 
-#endif /* end __linux__ */
+#elif defined(_WIN32)  /* end __linux__ */
 
-#ifdef _WIN32
-    /**
-     * On windows, we will store comrade's configuration files in 
-     * <My Documents>/Comrade/comraderc
-     */
+/**
+ * On windows, we will store comrade's configuration files in 
+ * <My Documents>/Comrade/comraderc
+ */
 
+char *get_config_path(void) {
     /* TODO: use window's unicode path API to allow for longer path names */
     char buffer[MAX_PATH];
     DWORD length = MAX_PATH -1;
@@ -319,9 +322,14 @@ error:
 
 error:
     return NULL;
-#endif /* end __WIN32 */
 }
 
+#endif /* end _WIN32 */
+
+
+/**
+ * Entry points for different OSes
+ */
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE hInstance, 
                     HINSTANCE hPrevInstance, 

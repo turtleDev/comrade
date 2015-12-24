@@ -76,12 +76,12 @@ static int basename_offset(char *string)
 
 /* Linux Specific Locking */
 
-#ifdef __linux__
+#if  defined(__linux__)
 static FILE *lf = NULL;
 static char *linux_lockfile = NULL;
 
 /**
- * _lock_acquire_linux() acquires an advisory lock on a file
+ * lock_acquire() acquires an advisory lock on a file
  * by the name PROGRAMNAME-USERNAME.lock in the /tmp directory.
  * 
  * You can use this function to ensure that only one instance of
@@ -91,7 +91,7 @@ static char *linux_lockfile = NULL;
  * 
  * @returns 0 for success, -1 for error (may set errno).
  */
-int _lock_acquire_linux(char *program_name) {
+int lock_acquire(char *program_name) {
 
     char *tmp_dir = NULL;
     char *user = getenv("USER");
@@ -141,12 +141,12 @@ error:
 }
 
 /**
- * _lock_release_linux(void) release the advisory lock acquired by
- * _lock_acquire_linux().
+ * lock_release(void) release the advisory lock acquired by
+ * lock_acquire().
  *
  * @returns 0 for success, -1 for error.
  */
-int _lock_release_linux(void) {
+int lock_release(void) {
     int rc = flock(fileno(lf), LOCK_UN);
     fclose(lf);
     if(linux_lockfile) {
@@ -157,14 +157,16 @@ int _lock_release_linux(void) {
     return rc;
 }
 
-#endif /* end __linux__ */
+#elif defined(_WIN32) /* end __linux__ */
 
-/* windows specific locking  */
-#ifdef _WIN32
-
+/**
+ * handle to the mutex object
+ */
 HANDLE mutex_obj;
 
-int _lock_acquire_win(char *program_name) {
+/* windows specific locking  */
+
+int lock_acquire(char *program_name) {
     char *user = getenv("USERNAME");
     char *base_name = program_name + basename_offset(program_name);
     /**
@@ -194,8 +196,22 @@ int _lock_acquire_win(char *program_name) {
     }
 }
 
-int _lock_release_win(void) {
+int lock_release(void) {
     return ReleaseMutex(mutex_obj);
 }
 
-#endif /* end _WIN32 */
+#else /* end _WIN32 */
+
+/**
+ * stubs
+ */
+int lock_acquire(char *program_name) {
+    log_warn("stub: unsupported platform");
+    return NULL;
+}
+
+int lock_release(void) {
+    log_warn("stub: unsupported platform");
+}
+
+#endif /* end stubs */

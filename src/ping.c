@@ -32,21 +32,56 @@
 
 #include "ping.h"
 
-int _ping_linux(const char *addr, int count) {
 
-    // 32 bytes are extra padding, just in case.
-    // 32 bytes are never enough - your program must 
-    // not crash by user input
-    // VEry easy to turn this into an exploit just by 
-    // passing the right bytes via the command line
-    int len = strlen(addr) + strlen("ping ") + 32;
+/**
+ * helper. Compute the `size` of an integer.
+ * like 100 is 3
+ */
+static int compute_size(int n) {
+    int s = 1;
+    while ( n != 0 ) 
+        n /= 10;
+    return s;
+}
+
+/**
+ * a wrapper around itoa() that mallocs memory
+ * for the string.
+ *
+ * returns the converted number as freshly allocated
+ * string.
+ */
+static char *str_from_int(int val) {
+
+    int size = compute_size(val) +1;
+
+    char *buffer = (char *)malloc(sizeof(char) * size);
+
+    itoa(val, buffer, 10);
+
+    return buffer;
+}
+
+#if defined(__linux__)
+
+int ping(const char *addr, int count) {
+
+    char *count = str_from_int(count);
+    char *cmd_template = "ping %s -c %s 2>&1";
+
+    /**
+     * compute the length of the buffer required to hold
+     * the command that we want to execute
+     */
+    int len = strlen(addr) + strlen(cmd_template) + strlen(count);
+
     char *cmd = malloc(sizeof(char) * len);
 
     if(count <= 0) {
         count = 1;
     }
     
-    sprintf(cmd, "ping %s -c %d 2>&1", addr, count);
+    sprintf(cmd, cmd_template, addr, count);
 
     FILE *s = popen(cmd, "r");
     char ch;
@@ -55,7 +90,43 @@ int _ping_linux(const char *addr, int count) {
     while((ch=fgetc(s)) != EOF);
 
     free(cmd);
+    free(count);
 
     return pclose(s);
 }
+
+#elif defined(_WIN32)
+
+int ping(const char *addr, int count ) {
+
+    char *cmd_template = "ping %s -n %s > NUL";
+    char *count = str_from_int(count);
+
+    int len = strlen(cmd_template) + strlen(count) + strlen(addr) +1;
+
+    sprintf(cmd, cmd_template, addr, count);
+
+    /**
+     * since popen() is not available for GUI applications(Thank you MS)
+     * use system()
+     */
+    int rc = system(cmd);
+
+    free(count);
+    free(cmd);
+
+    return rc;
+}
+
+#else 
+
+/**
+ * stub
+ */
+
+int ping(const char *addr, int count ) {
+    log_warn("stub: dummy ping");
+    return 0;
+}
+
 
