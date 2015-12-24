@@ -32,10 +32,8 @@
 #include "debug.h"
 #include "path.h"
 
-#ifdef __linux
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#endif
 
 
 /**
