@@ -44,13 +44,4 @@ struct Config * config_load(const char *cfg_string);
 
 void config_cleanup(struct Config *cfg);
 
-#ifdef _WIN32
-/**
- * on windows, strndup will _probably_ not be available.
- * so we'll provide our own implementation for it
- */
-char *strndup(const char *src, size_t len);
-
-#endif
-
 #endif

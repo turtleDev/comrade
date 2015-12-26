@@ -35,6 +35,36 @@
 #include "config.h"
 
 
+#ifdef _WIN32
+/**
+ * on windows, strndup will _probably_ not be available.
+ * so we'll provide our own implementation for it
+ */
+
+static char *strndup(const char *src, size_t len) {
+    /**
+     * make sure the source string is long enough
+     * for the given input length. If not, then use
+     * the length of the input string
+     */
+    int slen = strlen(src);
+    len = len > slen?slen:len;
+
+    // make space for the NULL byte
+    len += 1; 
+
+    char *buffer = calloc(len +1, sizeof(char));
+    int i;
+
+    // copy the characters
+    for ( i = 0; i < (len -1); ++i ) {
+        buffer[i] = src[i];
+    }
+
+    return buffer;
+}
+#endif
+
 /**
  * str_indexof(string,ch) returns the index where
  * the first occurance of ch is found in string
@@ -330,22 +360,3 @@ void config_cleanup(struct Config *cfg) {
 }
 
 
-#ifdef _WIN32
-char *strndup(const char *src, size_t len) {
-    // make space for the NULL byte
-    len += 1; 
-
-    char *buffer = calloc(len +1, sizeof(char));
-    int i;
-
-    // copy the characters
-    for ( i = 0; i < (len -1); ++i ) {
-        buffer[i] = src[i];
-        if ( src[i] == '\0' ) {
-            break;
-        }
-    }
-
-    return buffer;
-}
-#endif
