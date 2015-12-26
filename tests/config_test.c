@@ -5,8 +5,8 @@
 void test_cfg(const char *string) {
     struct Config *cfg = config_load(string);
     
-    printf("message: %s\ntitle: %s\nicon_file: %s\nsound_file: %s\n\
-addr: %s\ncount: %d\n",
+    printf("message: '%s'\ntitle: '%s'\nicon_file: '%s'\nsound_file: '%s'\n\
+addr: '%s'\ncount: '%d'\n",
             cfg->message, cfg->title, cfg->icon_file, cfg->sound_file,
             cfg->address, cfg->ping_count);
 

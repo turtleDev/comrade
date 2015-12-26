@@ -12,7 +12,7 @@ ifeq ($(OS),Linux)
 	gcc -g ns_test.c ../src/notification_sound.c ../src/path.c -o ns_test -lSDL2 -lSDL_mixer 
 endif
 
-config_test: 
+config_test: config_test.c
 	gcc -g config_test.c ../src/config.c -o config_test
 
 notification_test:

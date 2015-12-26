@@ -329,3 +329,23 @@ void config_cleanup(struct Config *cfg) {
     }
 }
 
+
+#ifdef _WIN32
+char *strndup(const char *src, size_t len) {
+    // make space for the NULL byte
+    len += 1; 
+
+    char *buffer = calloc(len +1, sizeof(char));
+    int i;
+
+    // copy the characters
+    for ( i = 0; i < (len -1); ++i ) {
+        buffer[i] = src[i];
+        if ( src[i] == '\0' ) {
+            break;
+        }
+    }
+
+    return buffer;
+}
+#endif
