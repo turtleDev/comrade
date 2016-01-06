@@ -170,8 +170,8 @@ void replace_str(char *src, char *dest) {
 #if  defined(__linux__)
 /**
  * on linux, we will store rc files as either $HOME/.comraderc or
- * $HOME/.local/Comrade/comraderc, depending on whether
- * $HOME/.local is available or not
+ * $HOME/.config/Comrade/comraderc, depending on whether
+ * $HOME/.comrade is available or not
  */
 char *get_config_path(void) {
     
@@ -179,16 +179,16 @@ char *get_config_path(void) {
     char *path = NULL;
 
     if (home) {
-        // create a path string to $HOME/.local
-        int len = strlen(home) + strlen("/.local") + 1;
+        // create a path string to $HOME/.config
+        int len = strlen(home) + strlen("/.config") + 1;
         path = malloc(len * sizeof(char));
         check(path != NULL, "out of memory");
 
-        sprintf(path, "%s/%s", home, ".local");
+        sprintf(path, "%s/%s", home, ".config");
 
-        // check if $HOME/.local exists
+        // check if $HOME/.config exists
         if (path_isdir(path)) {
-            // create path to $HOME/.local/Comrade
+            // create path to $HOME/.config/Comrade
             len = strlen(path) + strlen("/Comrade") + 1;
             check(
                 (path = realloc(path, sizeof(char) * len)) != NULL,
@@ -198,6 +198,7 @@ char *get_config_path(void) {
             strcat(path, "/Comrade");
 
             // check for its existance
+            /* XXX: should this crash here ? */
             if ( !path_isdir(path) ) {
                 check(
                     mkdir(path, 0777) == 0, "unable to create directory"
@@ -217,7 +218,7 @@ char *get_config_path(void) {
 
         } else {
 
-            // $HOME/.local does not exist. so we're going
+            // $HOME/.config does not exist. so we're going
             // to use $HOME/.comraderc instead
             free(path);
 
