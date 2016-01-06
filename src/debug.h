@@ -36,21 +36,21 @@
 #ifdef NDEBUG
 #define log_debug(M, ... )
 #else
-#define log_debug(M, ... ) fprintf(stderr, "\n[DEBUG: %s(%d):%s()]" M , __FILE__,\
+#define log_debug(M, ... ) fprintf(stderr, "[DEBUG: %s(%d):%s()] " M "\n" , __FILE__,\
                                __LINE__, __func__, ##__VA_ARGS__)
 #endif
 
 #define errno_msg() (errno == 0 ? "":strerror(errno))
 
-#define log_err(M, ... ) fprintf(stderr, "\n[ERROR: %s(%d):%s()] " M " ( %s )", \
+#define log_err(M, ... ) fprintf(stderr, "[ERROR: %s(%d):%s()] " M " (%s)\n", \
                                  __FILE__, __LINE__, __func__,\
                                  ##__VA_ARGS__,errno_msg())
 
-#define log_warn(M, ... ) fprintf(stderr, "\n[WARNING: %s(%d):%s()] " M " ( %s )", \
+#define log_warn(M, ... ) fprintf(stderr, "[WARNING: %s(%d):%s()] " M " (%s)\n", \
                                  __FILE__, __LINE__, __func__,\
                                  ##__VA_ARGS__, errno_msg())
 
-#define log_info(M, ... ) fprintf(stderr, "\n[INFO: %s(%d):%s()] " M " ( %s )", \
+#define log_info(M, ... ) fprintf(stderr, "[INFO: %s(%d):%s()] " M " (%s)\n", \
                                  __FILE__, __LINE__, __func__,\
                                  ##__VA_ARGS__, errno_msg())
 

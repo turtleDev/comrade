@@ -7,20 +7,20 @@ OS=$(shell uname -o)
 CFLAGS= -Wall  -g -O0
 
 # set CFLAGS for main module, depending upon OS
-ifeq($(OS),Linux)
+ifeq ($(OS),GNU/Linux)
 CFLAGS_MAIN=$(CFLAGS) `pkg-config --cflags gtk+-2.0 glib-2.0`
 endif
 
-ifeq($(OS),Cygwin)
+ifeq ($(OS),Cygwin)
 CFLAGS_MAIN=$(CFLAGS)
 endif
 
 # set LIBS_MAIN depending upon the OS
-ifeq($(OS),Linux)
+ifeq ($(OS),GNU/Linux)
 LIBS_MAIN=`pkg-config --libs gtk+-2.0 glib-2.0` -lnotify -lSDL2 -lSDL2_mixer
 endif
 
-ifeq($(OS),Cygwin)
+ifeq ($(OS),Cygwin)
 LIBS_MAIN=-lSDL2 -lSDL2_mixer
 endif
 

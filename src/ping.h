@@ -43,4 +43,3 @@ int ping(const char *addr, int count);
 
 #endif
 
-#endif

@@ -130,14 +130,14 @@ int play_notification_sound(const char *file) {
     }
 
     // initialize the SDL audio module
-    check(SDL_Init(SDL_INIT_AUDIO) >= 0, "Error: %s", SDL_GetError());
+    check(SDL_Init(SDL_INIT_EVERYTHING) >= 0, "Error: %s", SDL_GetError());
    
     // initialize SDL_mixer module
     check(
-        Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048) == 0,
+        Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == 0,
         "Error: %s", SDL_GetError()
     );
-    
+
 
     // load the music file
     Mix_Chunk *chunk = NULL;

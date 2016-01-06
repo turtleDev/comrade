@@ -57,16 +57,20 @@ static char *str_from_int(int val) {
 
     char *buffer = (char *)malloc(sizeof(char) * size);
 
-    itoa(val, buffer, 10);
+    sprintf(buffer, "%d", val);
 
     return buffer;
 }
 
 #if defined(__linux__)
 
-int ping(const char *addr, int count) {
+int ping(const char *addr, int cnt) {
 
-    char *count = str_from_int(count);
+    if(cnt <= 0) {
+        cnt = 1;
+    }
+
+    char *count = str_from_int(cnt);
     char *cmd_template = "ping %s -c %s 2>&1";
 
     /**
@@ -76,10 +80,6 @@ int ping(const char *addr, int count) {
     int len = strlen(addr) + strlen(cmd_template) + strlen(count);
 
     char *cmd = malloc(sizeof(char) * len);
-
-    if(count <= 0) {
-        count = 1;
-    }
     
     sprintf(cmd, cmd_template, addr, count);
 
@@ -129,4 +129,4 @@ int ping(const char *addr, int count ) {
     return 0;
 }
 
-
+#endif
