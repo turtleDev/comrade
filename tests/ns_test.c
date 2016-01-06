@@ -9,12 +9,16 @@ int main() {
     printf("Playing sound\n");
     play_notification_sound(f);
 
+    printf("Playing Music\n");
+    char *f2 = "song.mp3";
+    play_notification_sound(f2);
+
     printf("Checking error checking:\n");
     printf("trying to pass wrong arg: test.wav2\n");
 
-    char *f2 = "test.wav2";
-    if(play_notification_sound(f2) == -1) {
-        log_err("Error opening %s", f2);
+    char *f3 = "test.wav2";
+    if(play_notification_sound(f3) == -1) {
+        log_err("Error opening %s", f3);
     }
 
 

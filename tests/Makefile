@@ -4,12 +4,12 @@ OS=$(shell uname -o)
 locktest: 
 	gcc -g locktest.c ../src/path.c ../src/lock.c -o locktest
 
-ns_test:	
+ns_test: ns_test.c ../src/notification_sound.c ../src/path.c
 ifeq ($(OS),Msys)
 	gcc -g -I/usr/include -o ns_text ns_test.c ../src/notification_sound.c ../src/path.c -L/usr/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer
 endif
-ifeq ($(OS),Linux)
-	gcc -g ns_test.c ../src/notification_sound.c ../src/path.c -o ns_test -lSDL2 -lSDL_mixer 
+ifeq ($(OS),GNU/Linux)
+	gcc -g ns_test.c ../src/notification_sound.c ../src/path.c -o ns_test -lSDL2 -lSDL2_mixer 
 endif
 
 config_test: config_test.c
