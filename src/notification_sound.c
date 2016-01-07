@@ -147,6 +147,7 @@ int play_notification_sound(const char *file) {
         check((music = Mix_LoadMUS(file)) != NULL, "Error: %s\n", SDL_GetError());
 
         // play the music, but don't loop
+        Mix_VolumeMusic(MIX_MAX_VOLUME);
         Mix_PlayMusic(music, 0);
     } else {
         check((chunk = Mix_LoadWAV(file)) != NULL, "Error: %s\n", SDL_GetError());
@@ -181,7 +182,7 @@ int play_notification_sound(const char *file) {
          * Otherwise, the CPU will loop at full speed, 
          * buring power for no reason.
          */
-        SDL_Delay(500);
+        SDL_Delay(1.0/30.0);
     }
 
     if (music) {

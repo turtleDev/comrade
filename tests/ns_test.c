@@ -10,7 +10,7 @@ int main() {
     play_notification_sound(f);
 
     printf("Playing Music\n");
-    char *f2 = "song.mp3";
+    char *f2 = "/home/pitchblack/Programming/Projects/Comrade/tests/song.mp3";
     play_notification_sound(f2);
 
     printf("Checking error checking:\n");
