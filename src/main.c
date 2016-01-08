@@ -54,12 +54,33 @@
 
 
 const char *DEFAULT_CONFIG = "\
+[general] \n\
+# lines beginning with # or ; are comments \n\
+# modify this file to suit your preference \n\
+\n\
+# the title of the notification \n\
 title=Comrade \n\
+\n\
+# the message \n\
 message=your internet is now working \n\
+\n\
+# the address to ping \n\
 address=www.example.com\n\
+\n\
+# ping count per run. functionally equal to -c/-n flag to ping command \n\
 ping_count=4 \n\
+\n\
+# timeout for the notification (this value *may be* ignored by comrade) \n\
 timeout=5 \n\
-urgency=2\
+\n\
+# notification urgency. (may be ignored) \n\
+urgency=2\n\
+\n\
+# path to the sound file to play \n\
+# sound_file=<path/to/file> \n\
+\n\
+# path to the icon to display in the notification \n\
+# icon_file=<path/to/icon>\n\
 ";
 
 /**
