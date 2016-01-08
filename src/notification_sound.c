@@ -194,11 +194,13 @@ int play_notification_sound(const char *file) {
     }
 
     SDL_Quit();
+    Mix_CloseAudio();
 
     return 0;
 
 error:
     SDL_Quit();
+    Mix_CloseAudio();
     if (chunk) Mix_FreeChunk(chunk);
 
     return -1;
