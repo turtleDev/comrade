@@ -28,6 +28,6 @@
 #ifndef __NOTIFICATION_SOUND_H
 #define __NOTIFICATION_SOUND_H
 
-int play_notification_sound(const char *file);
+int notification_sound_play(const char *file);
 
 #endif

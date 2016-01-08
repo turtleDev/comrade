@@ -114,13 +114,7 @@ bool is_music(const char *filename)
     return false;
 }
 
-/**
- * TODO: add code to differentiate between 'sample' sound likes
- * like WAV, OGG etc and between streaming(?) sounds like mp3,
- * and then handle them appropriately
- */
-
-int play_notification_sound(const char *file) {
+int notification_sound_play(const char *file) {
 
     /** 
      * check if the file actually exists
@@ -199,9 +193,11 @@ int play_notification_sound(const char *file) {
     return 0;
 
 error:
+    if (chunk) Mix_FreeChunk(chunk);
+
     SDL_Quit();
     Mix_CloseAudio();
-    if (chunk) Mix_FreeChunk(chunk);
+
 
     return -1;
 }

@@ -114,7 +114,7 @@ int _display_notification_linux(struct Config *cfg) {
 
     // play the sound
     if(snd) {
-        play_notification_sound(snd);
+        notification_sound_play(snd);
     }
   
     // free the notifiction object
