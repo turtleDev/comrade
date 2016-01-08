@@ -47,6 +47,7 @@
 /* project headers */
 #include "debug.h"
 #include "config.h"
+#include "notification_sound.h"
 #include "notification.h"
 #include "ping.h"
 #include "lock.h"
@@ -350,6 +351,30 @@ error:
 
 
 /**
+ * init()
+ *
+ * initialize subsystems.
+ *
+ * @returns 1 for success, 0 for error
+ */
+
+int init(void) {
+    return notification_sound_init();
+}
+
+/**
+ * cleanup()
+ *
+ * shut down subsystems
+ *
+ * @returns nothing
+ */
+
+void cleanup(void) {
+    notification_sound_cleanup();
+}
+
+/**
  * Entry points for different OSes
  */
 #ifdef _WIN32
@@ -371,6 +396,8 @@ int CALLBACK WinMain(HINSTANCE hInstance,
 int main(int argc, char *argv[]) {
 
 #endif
+    
+    notification_sound_init();
 
     int i;
     for(i = 1 ; i < argc; ++i) {
@@ -535,6 +562,8 @@ int main(int argc, char *argv[]) {
         }
         ++attempts;
     }
+
+    notification_sound_cleanup();
     lock_release();
     config_cleanup(cfg);
     return 0;

@@ -30,4 +30,6 @@
 
 int notification_sound_play(const char *file);
 
+int notification_sound_init(void);
+void notification_sound_cleanup(void);
 #endif

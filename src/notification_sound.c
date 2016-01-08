@@ -114,6 +114,41 @@ bool is_music(const char *filename)
     return false;
 }
 
+/**
+ *
+ * notification_sound_init()
+ *
+ * initialize SDL and it's subsystems
+ *
+ * @returns 1 for success, 0 for error
+ */
+int notification_sound_init(void) {
+
+    check(SDL_Init(SDL_INIT_EVERYTHING) >= 0, "Error: %s", SDL_GetError());
+    check(
+        Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == 0, 
+        "Error: %s", SDL_GetError()
+    );
+
+    return 1;
+
+error:
+    return 0;
+}
+
+/**
+ *
+ * notification_sound_cleanup()
+ *
+ * shutdown SDL and it's subsystems
+ *
+ * @returns nothing
+ */
+void notification_sound_cleanup(void) {
+    Mix_CloseAudio();
+    SDL_Quit();
+}
+
 int notification_sound_play(const char *file) {
 
     /** 
@@ -123,6 +158,7 @@ int notification_sound_play(const char *file) {
         return -1;
     }
 
+    /*
     // initialize the SDL audio module
     check(SDL_Init(SDL_INIT_EVERYTHING) >= 0, "Error: %s", SDL_GetError());
    
@@ -131,6 +167,7 @@ int notification_sound_play(const char *file) {
         Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == 0,
         "Error: %s", SDL_GetError()
     );
+    */
 
 
     // load the music file
@@ -186,18 +223,18 @@ int notification_sound_play(const char *file) {
     if (chunk) {
         Mix_FreeChunk(chunk);
     }
-
+    /*
     SDL_Quit();
     Mix_CloseAudio();
-
+    */
     return 0;
 
 error:
     if (chunk) Mix_FreeChunk(chunk);
-
+    /*
     SDL_Quit();
     Mix_CloseAudio();
-
+    */
 
     return -1;
 }
