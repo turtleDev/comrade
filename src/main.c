@@ -176,11 +176,12 @@ char *read_file(const char *file)
 /**
  * replace dest string with src string.
  *
- * Assumes that both were dynamically allocated
+ * Assumes that destination was dynamically allocated
  */
-void replace_str(char *src, char *dest) {
-    if(dest) free(dest);
-    dest = strdup(src);
+
+void replace_str(char *src, char **dest) {
+    if(*dest) free(*dest);
+    *dest = strdup(src);
 }
 
 
@@ -467,7 +468,7 @@ int main(int argc, char *argv[]) {
     for(i = 1; i < argc; ++i) {
         if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--website")) {
             if(argv[i+1] != NULL) {
-                replace_str(argv[i+1], cfg->address);
+                replace_str(argv[i+1], &(cfg->address));
             } else {
                 fprintf(stderr, "Comrade: was expecting a website\n");
                 config_cleanup(cfg);
