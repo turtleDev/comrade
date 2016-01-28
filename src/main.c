@@ -381,8 +381,9 @@ int CALLBACK WinMain(HINSTANCE hInstance,
 int main(int argc, char *argv[]) {
 
 #endif
-    
-    notification_sound_init();
+  
+    /* init anything that needs an init */
+    init();
 
     int i;
     for(i = 1 ; i < argc; ++i) {
@@ -548,7 +549,8 @@ int main(int argc, char *argv[]) {
         ++attempts;
     }
 
-    notification_sound_cleanup();
+    /* cleanup */
+    cleanup();
     lock_release();
     config_cleanup(cfg);
     return 0;
