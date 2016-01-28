@@ -41,7 +41,12 @@ struct Config {
 
 
 struct Config * config_load(const char *cfg_string);
-
 void config_cleanup(struct Config *cfg);
+
+/**
+ * returns a string that contains the absolute path to the comrade.cfg
+ * file
+ */
+char *get_config_path(void);
 
 #endif
