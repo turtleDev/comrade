@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <wordexp.h>
 
-#ifdef __linux
+#ifdef __linux__
 #include <libnotify/notify.h>
 #include <glib.h>
 #endif 
@@ -70,22 +70,12 @@ static char *get_full_path(char *file) {
 
 
 int _display_notification_linux(struct Config *cfg) {
-    int icon_exists = 0;
-    int sound_exists = 0;
-
-    if(cfg->icon_file && path_isfile(cfg->icon_file)) {
-        icon_exists = 1;
-    }
-
-    if(cfg->sound_file && path_isfile(cfg->sound_file)) {
-        sound_exists = 1;
-    }
 
     // libnotify's icon only shows up if you tell it the absolute path to
-    // to icon. It won't show other wise. It returns a freshly allocated
+    // to icon. It won't show otherwise. It returns a freshly allocated
     // string. remember to free it afterwards.
-    char *icon = icon_exists ? get_full_path(cfg->icon_file) : NULL;
-    char *snd = sound_exists ? get_full_path(cfg->sound_file) : NULL;
+    char *icon = cfg->icon_file ? get_full_path(cfg->icon_file) : NULL;
+    char *snd = cfg->sound_file ? get_full_path(cfg->sound_file) : NULL;
     char *title = cfg->title;
     char *msg = cfg->message;
 

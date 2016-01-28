@@ -28,6 +28,12 @@
 #include <string.h>
 #include <stdbool.h>
 
+#if defined(__linux__)
+
+#include <libgen.h> /* for dirname */
+
+#endif
+
 #include "config.h"
 #include "debug.h"
 #include "path.h"
@@ -70,13 +76,6 @@ bool has_extension(const char *filename, char *ext) {
      * the same as the filename extension, then return
      * true, else false.
      */
-    // It is idiomatic in C to directly use boolean expressions
-    // true and false are not standard C 
-    // Nor are this sort of comment for that matter!
-    // In any case, just 
-    // return index && !strcmp(file_ext, ext);
-    // Is a more clear way of expressing the code
-    // Unlike python, implicit is preferred in C over explicit  
      
     if ( index != 0 && !strcmp(file_ext, ext)) {
         return true;
@@ -84,9 +83,6 @@ bool has_extension(const char *filename, char *ext) {
         return false;
     }
     
-    // Ultimately instead of this complicated approach, why not just compare strlen(ext) bytes
-    // from the end of filename against ext and also that the byte before that is a'.'
-    // Just one strlen, one strcmp and some checks to ensure filename is longer than ext
 }
    
 /**
@@ -151,37 +147,53 @@ void notification_sound_cleanup(void) {
 
 int notification_sound_play(const char *file) {
 
+
+    /**
+     * resolve relative paths to sound file. 
+     *
+     * we'll use the config directory as the working directory
+     */
+
+    char *path = NULL;
+    if (path_isrelative(file)) {
+
+        char *cfg_path = get_config_path();
+        if ( cfg_path != NULL ) {
+            // find the directory name
+            char *base_path = dirname(cfg_path);
+
+            // allocate a buffer
+            int len = strlen(file) + strlen(base_path) + strlen("/") + 1;
+            char *buffer = malloc(len * sizeof(char));
+
+            // build the path string
+            sprintf(buffer, "%s/%s", base_path, file);
+            free(cfg_path);
+
+            path = buffer;
+        }
+    } else {
+        path = file;
+    }
+
+
     /** 
      * check if the file actually exists
      */
-    if ( !file || !path_isfile(file) ) {
-        return -1;
-    }
-
-    /*
-    // initialize the SDL audio module
-    check(SDL_Init(SDL_INIT_EVERYTHING) >= 0, "Error: %s", SDL_GetError());
-   
-    // initialize SDL_mixer module
-    check(
-        Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == 0,
-        "Error: %s", SDL_GetError()
-    );
-    */
-
+    check( !file || !path_isfile(file), "") 
 
     // load the music file
     Mix_Chunk *chunk = NULL;
     Mix_Music *music = NULL;
 
-    if ( is_music(file) ) {
-        check((music = Mix_LoadMUS(file)) != NULL, "Error: %s\n", SDL_GetError());
+    if ( is_music(path) ) {
+        check((music = Mix_LoadMUS(path)) != NULL, "Error: %s\n", SDL_GetError());
 
         // play the music, but don't loop
         Mix_VolumeMusic(MIX_MAX_VOLUME);
         Mix_PlayMusic(music, 0);
     } else {
-        check((chunk = Mix_LoadWAV(file)) != NULL, "Error: %s\n", SDL_GetError());
+        check((chunk = Mix_LoadWAV(path)) != NULL, "Error: %s\n", SDL_GetError());
     
         // play the sound, but don't loop
         Mix_PlayChannel(-1, chunk, 0);
@@ -223,18 +235,19 @@ int notification_sound_play(const char *file) {
     if (chunk) {
         Mix_FreeChunk(chunk);
     }
-    /*
-    SDL_Quit();
-    Mix_CloseAudio();
-    */
+
+    /**
+     * if we resolved relative path to absolute path, then free the `path`
+     * variable since its been malloc'd
+     */
+    if (path_isrelative(file)) {
+        free(path);
+    }
+
     return 0;
 
 error:
     if (chunk) Mix_FreeChunk(chunk);
-    /*
-    SDL_Quit();
-    Mix_CloseAudio();
-    */
 
     return -1;
 }

@@ -31,8 +31,16 @@
 #include <math.h>
 #include <stdint.h>
 
+#if defined(__linux__)
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#endif
+
 #include "debug.h"
 #include "config.h"
+#include "path.h"
 
 
 
