@@ -70,7 +70,7 @@ static int _warn_not_supported(char *feature, int n) {
 /**
  *  ghost macro 
  *
- *  The following codoe was originally used back when comrade was being 
+ *  The following code was originally used back when comrade was being 
  *  developed using Visual Studio. It's useless now since
  *  mingw has the proper definitions for stat and its
  *  macros.
@@ -175,4 +175,26 @@ int path_exists(const char *fname) {
 }
 
 
+#if defined(__linux__)
 
+int path_isabsolute(const char *path) {
+    return path[0] == '/';
+}
+
+int path_isrelative(const char *path) {
+    return !path_isabsolute(path);
+}
+
+#elif defined(_WIN32)
+
+int path_isabsolute(const char *path) {
+    log_warn("stub: not implemented");
+    return 0;
+}
+
+int path_isrelative(const char *path) {
+    log_warn("stub: not implemented");
+    return 0;
+}
+
+#endif

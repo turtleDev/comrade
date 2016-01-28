@@ -34,4 +34,7 @@ int path_isfifo(const char *fname);
 int path_islink(const char *fname);
 int path_exists(const char *fname);
 
+int path_isrelative(const char *path);
+int path_isabsolute(const char *path);
+
 #endif
