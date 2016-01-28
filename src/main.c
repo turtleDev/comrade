@@ -117,9 +117,7 @@ options:                                            \n\
         -t, --timeout m: timeout after m minutes    \n\
                                                     \n\
 Note: Comrade will try to load a file called        \n\
-      'comrade.cfg', from either {HOME}/.local/Comrade\n\
-      (if {HOME}/.local exists) or from {HOME}      \n\
-      to configure itself                           \n\
+      'comrade.cfg', from {HOME}/.local/Comrade     \n\
       If it is unable to load that file, then it    \n\
       will use the default configuration that is    \n\
       built into it. If any command line option     \n\
@@ -192,9 +190,8 @@ void replace_str(char *src, char **dest) {
 
 #if  defined(__linux__)
 /**
- * on linux, we will store rc files as either $HOME/.comrade.cfg or
- * $HOME/.config/Comrade/comrade.cfg, depending on whether
- * $HOME/.comrade is available or not
+ * on linux, we will store rc files in  
+ * $HOME/.config/Comrade/comrade.cfg 
  */
 char *get_config_path(void) {
     
@@ -209,50 +206,37 @@ char *get_config_path(void) {
 
         sprintf(path, "%s/%s", home, ".config");
 
-        // check if $HOME/.config exists
+        // check if $HOME/.config exists, and create it if it doesn't
         if (path_isdir(path)) {
-            // create path to $HOME/.config/Comrade
-            len = strlen(path) + strlen("/Comrade") + 1;
-            check(
-                (path = realloc(path, sizeof(char) * len)) != NULL,
-                "out of memory"
-            );
-
-            strcat(path, "/Comrade");
-
-            // check for its existance
-            /* XXX: should this crash here ? */
-            if ( !path_isdir(path) ) {
-                check(
-                    mkdir(path, 0777) == 0, "unable to create directory"
-                );
-            }
-
-            // now create the final path to config file
-            len = strlen(path) + strlen("/comrade.cfg") + 1;
-            check(
-                (path = realloc(path, sizeof(char) * len)) != NULL,
-                "out of memory"
-            );
-
-            strcat(path, "/comrade.cfg");
-
-            return path;
-
-        } else {
-
-            // $HOME/.config does not exist. so we're going
-            // to use $HOME/.comrade.cfg instead
-            free(path);
-
-            len = strlen(home) + strlen("/.comrade.cfg") + 1;
-            path = malloc(sizeof(char) * len);
-            check(path != NULL, "out of memory");
-
-            sprintf(path, "%s/%s", home, ".comrade.cfg");
-
-            return path;
+            mkdir(path, 0777);
         }
+
+        // create path string `$HOME/.config/Comrade`
+        len = strlen(path) + strlen("/Comrade") + 1;
+        check(
+            (path = realloc(path, sizeof(char) * len)) != NULL,
+            "out of memory"
+        );
+
+        strcat(path, "/Comrade");
+
+        // check for its existance
+        if ( !path_isdir(path) ) {
+            check(
+                mkdir(path, 0777) == 0, "unable to create directory %s", path
+            );
+        }
+
+        // now create the final path to config file
+        len = strlen(path) + strlen("/comrade.cfg") + 1;
+        check(
+            (path = realloc(path, sizeof(char) * len)) != NULL,
+            "out of memory"
+        );
+
+        strcat(path, "/comrade.cfg");
+
+        return path;
 
     } else {
         // Since we got no home, we can't afford no configuration
