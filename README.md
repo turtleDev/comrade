@@ -1,7 +1,14 @@
 #Comrade
-A command line utility that notifies you when your Internet is up.
+<strike>A command line utility that notifies you when your Internet is up.</strike>
 
-The current build only works for linux, but windows support is on the way.
+<strike>The current build only works for linux, but windows support is on the way.</strike>
+
+A daemon that notifies any change in internet connectivity.
+
+##Roadmap
+
+* integrate `bstrlib` and `glib`, stop raw doging everything.
+* add support for windows and mac.
 
 ##Dependencies
 * SDL2 ( with SDL2 mixer extension )
